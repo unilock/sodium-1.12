@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class SodiumMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            this.config = SodiumConfig.load(Minecraft.getMinecraft().gameDir.toPath().resolve("config").resolve("sodium-mixins.properties").toFile());
+            this.config = SodiumConfig.load(new File(".").toPath().resolve("config").resolve("sodium-mixins.properties").toFile());
         } catch (Exception e) {
             throw new RuntimeException("Could not load configuration file for Sodium", e);
         }
