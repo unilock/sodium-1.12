@@ -20,8 +20,6 @@ import java.nio.ByteBuffer;
 
 @Mixin(BufferBuilder.class)
 public abstract class MixinBufferBuilder implements VertexBufferView, VertexDrain {
-    @Shadow
-    private int elementOffset;
 
     @Shadow
     private ByteBuffer byteBuffer;
@@ -58,7 +56,7 @@ public abstract class MixinBufferBuilder implements VertexBufferView, VertexDrai
             bytes += vertexFormat.getSize();
         }
 
-        if (this.elementOffset + bytes <= this.byteBuffer.capacity()) {
+        if (this.vertexCount * this.vertexFormat.getSize() + bytes <= this.byteBuffer.capacity()) {
             return false;
         }
 
@@ -84,7 +82,7 @@ public abstract class MixinBufferBuilder implements VertexBufferView, VertexDrai
 
     @Override
     public int getWriterPosition() {
-        return this.elementOffset;
+        return this.vertexCount * this.vertexFormat.getSize();
     }
 
     @Override
@@ -99,7 +97,7 @@ public abstract class MixinBufferBuilder implements VertexBufferView, VertexDrai
         }
 
         this.vertexCount += vertexCount;
-        this.elementOffset += vertexCount * format.getStride();
+        //this.elementOffset += vertexCount * format.getStride();
     }
 
     @Override
