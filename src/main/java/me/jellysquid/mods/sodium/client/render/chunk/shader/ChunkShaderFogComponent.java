@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.render.chunk.shader;
 
 import me.jellysquid.mods.sodium.client.gl.compat.FogHelper;
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl3.opengl.GL20C;
 
 /**
  * These shader implementations try to remain compatible with the deprecated fixed function pipeline by manually

@@ -1,7 +1,5 @@
 package me.jellysquid.mods.sodium.client.render.chunk.tasks;
 
-import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import me.jellysquid.mods.sodium.client.gl.buffer.VertexData;
 import me.jellysquid.mods.sodium.client.gl.util.BufferSlice;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
@@ -12,18 +10,16 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildResult;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkMeshData;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
-import me.jellysquid.mods.sodium.client.render.chunk.format.sfp.SFPModelVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.pipeline.context.ChunkRenderCacheLocal;
 import me.jellysquid.mods.sodium.client.util.task.CancellationSource;
-import net.minecraft.client.util.GlAllocationUtils;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,7 +59,7 @@ public class ChunkRenderTranslucencySortTask<T extends ChunkGraphicsState> exten
                 continue;
 
             // Make a snapshot of the translucency data to sort
-            ByteBuffer sortedData = GlAllocationUtils.allocateByteBuffer(translucencyData.capacity());
+            ByteBuffer sortedData = GLAllocation.createDirectByteBuffer(translucencyData.capacity());
             synchronized (translucencyData) {
                 sortedData.put(translucencyData);
                 translucencyData.position(0);

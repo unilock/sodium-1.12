@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.gl.attribute;
 
-import org.lwjgl.opengl.GL20C;
+import org.lwjgl3.opengl.GL20C;
 
 /**
  * An enumeration over the supported data types that can be used for vertex attributes.

@@ -3,12 +3,12 @@ package me.jellysquid.mods.sodium.client.model.vertex.formats.glyph;
 import me.jellysquid.mods.sodium.client.model.vertex.VertexSink;
 import me.jellysquid.mods.sodium.client.util.math.Matrix4fExtended;
 import me.jellysquid.mods.sodium.client.util.math.MatrixUtil;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import repack.joml.Matrix4f;
 
 public interface GlyphVertexSink extends VertexSink {
-    VertexFormat VERTEX_FORMAT = VertexFormats.POSITION_COLOR_TEXTURE_LIGHT;
+    VertexFormat VERTEX_FORMAT = DefaultVertexFormats.BLOCK;
 
     /**
      * Writes a glyph vertex to the sink.

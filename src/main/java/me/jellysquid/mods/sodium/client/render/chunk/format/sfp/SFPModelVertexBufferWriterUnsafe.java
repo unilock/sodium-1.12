@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.chunk.format.sfp;
 
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.system.MemoryUtil;
 
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterUnsafe;

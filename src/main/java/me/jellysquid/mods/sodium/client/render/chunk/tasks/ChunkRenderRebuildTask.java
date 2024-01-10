@@ -1,7 +1,5 @@
 package me.jellysquid.mods.sodium.client.render.chunk.tasks;
 
-import java.util.Map;
-
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderContainer;
@@ -12,30 +10,28 @@ import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderBounds;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.pipeline.context.ChunkRenderCacheLocal;
+import me.jellysquid.mods.sodium.client.util.MathUtil;
 import me.jellysquid.mods.sodium.client.util.task.CancellationSource;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.chunk.ChunkOcclusionDataBuilder;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.crash.CrashReportSection;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.chunk.VisGraph;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.MinecraftForge;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
-import org.embeddedt.embeddium.model.ModelDataSnapshotter;
 import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
 
 /**
@@ -52,8 +48,6 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
     private final ChunkRenderContext context;
 
-    private final Map<BlockPos, IModelData> modelDataMap;
-
     private Vec3d camera;
 
     private final boolean translucencySorting;
@@ -64,8 +58,6 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
         this.context = context;
         this.camera = Vec3d.ZERO;
         this.translucencySorting = SodiumClientMod.options().advanced.translucencySorting;
-
-        this.modelDataMap = ModelDataSnapshotter.getModelDataForSection(MinecraftClient.getInstance().world, this.context.getOrigin());
     }
 
     public ChunkRenderRebuildTask<T> withCameraPosition(Vec3d camera) {
@@ -77,7 +69,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
     public ChunkBuildResult<T> performBuild(ChunkRenderCacheLocal cache, ChunkBuildBuffers buffers, CancellationSource cancellationSource) {
         // COMPATIBLITY NOTE: Oculus relies on the LVT of this method being unchanged, at least in 16.5
         ChunkRenderData.Builder renderData = new ChunkRenderData.Builder();
-        ChunkOcclusionDataBuilder occluder = new ChunkOcclusionDataBuilder();
+        VisGraph occluder = new VisGraph();
         ChunkRenderBounds.Builder bounds = new ChunkRenderBounds.Builder();
 
         buffers.init(renderData);
@@ -90,7 +82,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
         int baseY = this.render.getOriginY();
         int baseZ = this.render.getOriginZ();
 
-        BlockPos.Mutable pos = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         BlockPos renderOffset = this.offset;
 
         try {
@@ -101,71 +93,71 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
                 for (int relZ = 0; relZ < 16; relZ++) {
                     for (int relX = 0; relX < 16; relX++) {
-                        BlockState blockState = slice.getBlockStateRelative(relX + 16, relY + 16, relZ + 16);
+                        IBlockState blockState = slice.getBlockStateRelative(relX + 16, relY + 16, relZ + 16);
+                        Block block = blockState.getBlock();
 
-                        if (blockState.isAir() && !blockState.hasTileEntity()) {
+                        // If the block is vanilla air, assume it renders nothing. Don't use isAir because mods
+                        // can abuse it for all sorts of things
+                        if (block.getMaterial(blockState) == Material.AIR) {
                             continue;
                         }
 
                         // TODO: commit this separately
-                        pos.set(baseX + relX, baseY + relY, baseZ + relZ);
+                        pos.setPos(baseX + relX, baseY + relY, baseZ + relZ);
                         buffers.setRenderOffset(pos.getX() - renderOffset.getX(), pos.getY() - renderOffset.getY(), pos.getZ() - renderOffset.getZ());
 
-                        if (blockState.getRenderType() == BlockRenderType.MODEL) {
-                            for (RenderLayer layer : EmbeddiumRenderLayerCache.forState(blockState)) {
+                        if (blockState.getRenderType() == EnumBlockRenderType.MODEL) {
+                            for (BlockRenderLayer layer : EmbeddiumRenderLayerCache.forState(blockState)) {
                                 ForgeHooksClient.setRenderLayer(layer);
-                                IModelData modelData = modelDataMap.getOrDefault(pos, EmptyModelData.INSTANCE);
 
-                                BakedModel model = cache.getBlockModels()
-                                        .getModel(blockState);
+                                IBakedModel model = cache.getBlockModels()
+                                        .getModelForState(blockState);
 
-                                long seed = blockState.getRenderingSeed(pos);
+                                final long seed = MathUtil.hashPos(pos);
 
-                                if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState, pos, model, buffers.get(layer), true, seed, modelData)) {
+                                if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState, pos, model, buffers.get(layer), true, seed)) {
                                     bounds.addBlock(relX, relY, relZ);
                                 }
 
                             }
                         }
 
-                        FluidState fluidState = blockState.getFluidState();
-
-                        if (!fluidState.isEmpty()) {
-                            for (RenderLayer layer : EmbeddiumRenderLayerCache.forState(fluidState)) {
+                        if (blockState.getRenderType() == EnumBlockRenderType.LIQUID) {
+                            for (BlockRenderLayer layer : EmbeddiumRenderLayerCache.forState(blockState)) {
                                 ForgeHooksClient.setRenderLayer(layer);
 
-                                if (cache.getFluidRenderer().render(cache.getLocalSlice(), fluidState, pos, buffers.get(layer))) {
+                                if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
                                     bounds.addBlock(relX, relY, relZ);
                                 }
                             }
                         }
 
-                        if (blockState.hasTileEntity()) {
-                            BlockEntity entity = slice.getBlockEntity(pos);
+                        if (block.hasTileEntity(blockState)) {
+                            TileEntity entity = slice.getTileEntity(pos);
 
                             if (entity != null) {
-                                BlockEntityRenderer<BlockEntity> renderer = BlockEntityRenderDispatcher.INSTANCE.get(entity);
+                                TileEntitySpecialRenderer<TileEntity> renderer = TileEntityRendererDispatcher.instance.getRenderer(entity);
 
                                 if (renderer != null) {
-                                    renderData.addBlockEntity(entity, !renderer.rendersOutsideBoundingBox(entity));
+                                    renderData.addBlockEntity(entity, !renderer.isGlobalRenderer(entity));
 
                                     bounds.addBlock(relX, relY, relZ);
                                 }
                             }
                         }
 
-                        if (blockState.isOpaqueFullCube(slice, pos)) {
-                            occluder.markClosed(pos);
+                        if (blockState.isOpaqueCube()) {
+                            occluder.setOpaqueCube(pos);
                         }
                     }
                 }
             }
-        } catch (CrashException ex) {
+        } catch (ReportedException ex) {
             // Propagate existing crashes (add context)
-            throw fillCrashInfo(ex.getReport(), slice, pos);
+            throw fillCrashInfo(ex.getCrashReport(), slice, pos);
         } catch (Throwable ex) {
             // Create a new crash report for other exceptions (e.g. thrown in getQuads)
-            throw fillCrashInfo(CrashReport.create(ex, "Encountered exception while building chunk meshes"), slice, pos);
+            throw fillCrashInfo(CrashReport.makeCrashReport(ex, "Encountered exception while building chunk meshes"), slice, pos);
         }
 
         
@@ -182,7 +174,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
             }
         }
 
-        renderData.setOcclusionData(occluder.build());
+        renderData.setOcclusionData(occluder.computeVisibility());
         renderData.setBounds(bounds.build(this.render.getChunkPos()));
 
         MinecraftForge.EVENT_BUS.post(new ChunkDataBuiltEvent(renderData));
@@ -190,21 +182,21 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
         return new ChunkBuildResult<>(this.render, renderData.build());
     }
 
-    private CrashException fillCrashInfo(CrashReport report, WorldSlice slice, BlockPos pos) {
-        CrashReportSection crashReportSection = report.addElement("Block being rendered", 1);
+    private ReportedException fillCrashInfo(CrashReport report, WorldSlice slice, BlockPos pos) {
+        CrashReportCategory crashReportSection = report.makeCategoryDepth("Block being rendered", 1);
 
-        BlockState state = null;
+        IBlockState state = null;
         try {
             state = slice.getBlockState(pos);
         } catch (Exception ignored) {}
-        CrashReportSection.addBlockInfo(crashReportSection, pos, state);
+        CrashReportCategory.addBlockInfo(crashReportSection, pos, state);
 
-        crashReportSection.add("Chunk section", render);
+        crashReportSection.addCrashSection("Chunk section", render);
         if (context != null) {
-            crashReportSection.add("Render context volume", context.getVolume());
+            crashReportSection.addCrashSection("Render context volume", context.getVolume());
         }
 
-        return new CrashException(report);
+        return new ReportedException(report);
     }
 
     @Override

@@ -1,15 +1,17 @@
 package me.jellysquid.mods.sodium.mixin.features.chunk_rendering;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Matrix4f;
+import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.DestroyBlockProgress;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.culling.ICamera;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.BlockRenderLayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -19,33 +21,34 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.SortedSet;
+import java.util.Map;
 
-@Mixin(WorldRenderer.class)
+@Mixin(RenderGlobal.class)
 public abstract class MixinWorldRenderer {
-    @Shadow
-    @Final
-    private BufferBuilderStorage bufferBuilders;
 
     @Shadow
     @Final
-    private Long2ObjectMap<SortedSet<BlockBreakingInfo>> blockBreakingProgressions;
+    private Map<Integer, DestroyBlockProgress> damagedBlocks;
+
+    @Shadow
+    private void renderBlockLayer(BlockRenderLayer blockLayerIn) {
+    }
 
     private SodiumWorldRenderer renderer;
 
-    @Redirect(method = "reload()V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/GameOptions;viewDistance:I", ordinal = 1))
-    private int nullifyBuiltChunkStorage(GameOptions options) {
+    @Redirect(method = "loadRenderers", at = @At(value = "FIELD", target = "Lnet/minecraft/client/settings/GameSettings;renderDistanceChunks:I", ordinal = 1))
+    private int nullifyBuiltChunkStorage(GameSettings settings) {
         // Do not allow any resources to be allocated
         return 0;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(MinecraftClient client, BufferBuilderStorage bufferBuilders, CallbackInfo ci) {
+    private void init(Minecraft minecraft, CallbackInfo ci) {
         this.renderer = SodiumWorldRenderer.create();
     }
 
-    @Inject(method = "setWorld", at = @At("RETURN"))
-    private void onWorldChanged(ClientWorld world, CallbackInfo ci) {
+    @Inject(method = "setWorldAndLoadRenderers", at = @At("RETURN"))
+    private void onWorldChanged(WorldClient world, CallbackInfo ci) {
         RenderDevice.enterManagedCode();
 
         try {
@@ -60,7 +63,7 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
-    public int getCompletedChunkCount() {
+    public int getRenderedChunks() {
         return this.renderer.getVisibleChunkCount();
     }
 
@@ -69,11 +72,11 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
-    public boolean isTerrainRenderComplete() {
+    public boolean hasNoChunkUpdates() {
         return this.renderer.isTerrainRenderComplete();
     }
 
-    @Inject(method = "scheduleTerrainUpdate", at = @At("RETURN"))
+    @Inject(method = "setDisplayListEntitiesDirty", at = @At("RETURN"))
     private void onTerrainUpdateScheduled(CallbackInfo ci) {
         this.renderer.scheduleTerrainUpdate();
     }
@@ -83,14 +86,18 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
-    private void renderLayer(RenderLayer renderLayer, MatrixStack matrixStack, double x, double y, double z) {
+    public int renderBlockLayer(BlockRenderLayer blockLayerIn, double partialTicks, int pass, Entity entityIn) {
         RenderDevice.enterManagedCode();
 
         try {
-            this.renderer.drawChunkLayer(renderLayer, matrixStack, x, y, z);
+            this.renderer.drawChunkLayer(blockLayerIn, new MatrixStack(), entityIn.posX, entityIn.posY, entityIn.posZ);
         } finally {
             RenderDevice.exitManagedCode();
         }
+
+        // TODO Check if correct
+        renderBlockLayer(blockLayerIn);
+        return 1;
     }
 
     /**
@@ -98,11 +105,12 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
-    private void setupTerrain(Camera camera, Frustum frustum, boolean hasForcedFrustum, int frame, boolean spectator) {
+    public void setupTerrain(Entity entity, double tick, ICamera camera, int frame, boolean spectator) {
         RenderDevice.enterManagedCode();
 
+        boolean hasForcedFrustum = false;
         try {
-            this.renderer.updateChunks(camera, frustum, hasForcedFrustum, frame, spectator);
+            this.renderer.updateChunks((Frustum) camera, hasForcedFrustum, frame, spectator);
         } finally {
             RenderDevice.exitManagedCode();
         }
@@ -113,38 +121,42 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
+    private void markBlocksForUpdate(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean important) {
+        this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, important);
+    }
+    /*@Overwrite
     public void scheduleBlockRenders(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, false);
-    }
+    }*/
 
     /**
      * @reason Redirect chunk updates to our renderer
      * @author JellySquid
      */
-    @Overwrite
+    /*@Overwrite
     public void scheduleBlockRenders(int x, int y, int z) {
         this.renderer.scheduleRebuildForChunks(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1, false);
-    }
+    }*/
 
     /**
      * @reason Redirect chunk updates to our renderer
      * @author JellySquid
      */
-    @Overwrite
+    /*@Overwrite
     private void scheduleSectionRender(BlockPos pos, boolean important) {
         this.renderer.scheduleRebuildForBlockArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1, important);
-    }
+    }*/
 
     /**
      * @reason Redirect chunk updates to our renderer
      * @author JellySquid
      */
-    @Overwrite
+    /*@Overwrite
     private void scheduleChunkRender(int x, int y, int z, boolean important) {
         this.renderer.scheduleRebuildForChunk(x, y, z, important);
-    }
+    }*/
 
-    @Inject(method = "reload()V", at = @At("RETURN"))
+    @Inject(method = "loadRenderers", at = @At("RETURN"))
     private void onReload(CallbackInfo ci) {
         RenderDevice.enterManagedCode();
 
@@ -155,9 +167,9 @@ public abstract class MixinWorldRenderer {
         }
     }
 
-    @Inject(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/WorldRenderer;noCullingBlockEntities:Ljava/util/Set;", shift = At.Shift.BEFORE, ordinal = 0))
-    private void onRenderTileEntities(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-        this.renderer.renderTileEntities(matrices, this.bufferBuilders, this.blockBreakingProgressions, camera, tickDelta);
+    @Inject(method = "renderEntities", at = @At(value = "INVOKE", target="Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V", shift = At.Shift.AFTER, ordinal = 1))
+    public void sodium$renderTileEntities(Entity entity, ICamera camera, float partialTicks, CallbackInfo ci) {
+        this.renderer.renderTileEntities(entity, camera, partialTicks, damagedBlocks);
     }
 
     /**
@@ -165,7 +177,7 @@ public abstract class MixinWorldRenderer {
      * @author JellySquid
      */
     @Overwrite
-    public String getChunksDebugString() {
+    public String getDebugInfoRenders() {
         return this.renderer.getChunksDebugString();
     }
 }

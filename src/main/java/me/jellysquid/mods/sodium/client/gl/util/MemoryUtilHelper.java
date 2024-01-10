@@ -1,9 +1,9 @@
 package me.jellysquid.mods.sodium.client.gl.util;
 
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.system.MemoryUtil;
 
+import javax.annotation.Nullable;
 import java.nio.Buffer;
 
 /**

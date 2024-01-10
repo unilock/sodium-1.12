@@ -2,12 +2,11 @@ package me.jellysquid.mods.sodium.client.gl.shader;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL20C;
-
-import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl3.opengl.GL20;
+import org.lwjgl3.opengl.GL20C;
 
 /**
  * An OpenGL shader program.
@@ -15,28 +14,28 @@ import com.mojang.blaze3d.platform.GlStateManager;
 public abstract class GlProgram extends GlObject {
     private static final Logger LOGGER = LogManager.getLogger(GlProgram.class);
 
-    private final Identifier name;
+    private final ResourceLocation name;
 
-    protected GlProgram(RenderDevice owner, Identifier name, int program) {
+    protected GlProgram(RenderDevice owner, ResourceLocation name, int program) {
         super(owner);
 
         this.name = name;
         this.setHandle(program);
     }
 
-    public static Builder builder(Identifier identifier) {
+    public static Builder builder(ResourceLocation identifier) {
         return new Builder(identifier);
     }
 
     public void bind() {
-    	GlStateManager.useProgram(this.handle());
+        GL20.glUseProgram(this.handle());
     }
 
     public void unbind() {
-    	GlStateManager.useProgram(0);
+        GL20.glUseProgram(0);
     }
 
-    public Identifier getName() {
+    public ResourceLocation getName() {
         return this.name;
     }
 
@@ -47,7 +46,7 @@ public abstract class GlProgram extends GlObject {
      * @throws NullPointerException If no uniform exists with the given name
      */
     public int getUniformLocation(String name) {
-        int index = GlStateManager.getUniformLocation(this.handle(), name);
+        int index = GL20.glGetUniformLocation(this.handle(), name);
 
         if (index < 0) {
             throw new NullPointerException("No uniform exists with name: " + name);
@@ -57,22 +56,22 @@ public abstract class GlProgram extends GlObject {
     }
 
     public void delete() {
-    	GlStateManager.deleteProgram(this.handle());
+        GL20.glDeleteProgram(this.handle());
 
         this.invalidateHandle();
     }
 
     public static class Builder {
-        private final Identifier name;
+        private final ResourceLocation name;
         private final int program;
 
-        public Builder(Identifier name) {
+        public Builder(ResourceLocation name) {
             this.name = name;
-            this.program = GlStateManager.createProgram();
+            this.program = GL20.glCreateProgram();
         }
 
         public Builder attachShader(GlShader shader) {
-        	GlStateManager.attachShader(this.program, shader.handle());
+            GL20.glAttachShader(this.program, shader.handle());
 
             return this;
         }
@@ -87,7 +86,7 @@ public abstract class GlProgram extends GlObject {
          * @return An instantiated shader container as provided by the factory
          */
         public <P extends GlProgram> P build(ProgramFactory<P> factory) {
-        	GlStateManager.linkProgram(this.program);
+            GL20.glLinkProgram(this.program);
 
             String log = GL20C.glGetProgramInfoLog(this.program);
 
@@ -95,7 +94,7 @@ public abstract class GlProgram extends GlObject {
                 LOGGER.warn("Program link log for " + this.name + ": " + log);
             }
 
-            int result = GlStateManager.getProgram(this.program, GL20C.GL_LINK_STATUS);
+            int result = GL20.glGetProgrami(this.program, GL20C.GL_LINK_STATUS);
 
             if (result != GL20C.GL_TRUE) {
                 throw new RuntimeException("Shader program linking failed, see log for details");
@@ -112,6 +111,6 @@ public abstract class GlProgram extends GlObject {
     }
 
     public interface ProgramFactory<P extends GlProgram> {
-        P create(Identifier name, int handle);
+        P create(ResourceLocation name, int handle);
     }
 }

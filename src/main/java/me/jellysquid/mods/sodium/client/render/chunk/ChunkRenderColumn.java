@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.render.chunk;
 
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.EnumFacing;
 
 public class ChunkRenderColumn<T extends ChunkGraphicsState> {
     @SuppressWarnings("unchecked")
@@ -16,15 +16,15 @@ public class ChunkRenderColumn<T extends ChunkGraphicsState> {
         this.x = x;
         this.z = z;
 
-        this.setAdjacentColumn(Direction.UP, this);
-        this.setAdjacentColumn(Direction.DOWN, this);
+        this.setAdjacentColumn(EnumFacing.UP, this);
+        this.setAdjacentColumn(EnumFacing.DOWN, this);
     }
 
-    public void setAdjacentColumn(Direction dir, ChunkRenderColumn<T> column) {
+    public void setAdjacentColumn(EnumFacing dir, ChunkRenderColumn<T> column) {
         this.adjacent[dir.ordinal()] = column;
     }
 
-    public ChunkRenderColumn<T> getAdjacentColumn(Direction dir) {
+    public ChunkRenderColumn<T> getAdjacentColumn(EnumFacing dir) {
         return this.adjacent[dir.ordinal()];
     }
 
@@ -48,24 +48,24 @@ public class ChunkRenderColumn<T extends ChunkGraphicsState> {
     }
 
     public boolean areNeighborsPresent() {
-        for (Direction dir : DirectionUtil.HORIZONTAL_DIRECTIONS) {
+        for (EnumFacing dir : DirectionUtil.HORIZONTAL_DIRECTIONS) {
             ChunkRenderColumn<T> adj = this.adjacent[dir.ordinal()];
 
             if (adj == null) {
                 return false;
             }
 
-            Direction corner;
+            EnumFacing corner;
 
             // Access the adjacent corner chunk from the neighbor in this direction
-            if (dir == Direction.NORTH) {
-                corner = Direction.EAST;
-            } else if (dir == Direction.SOUTH) {
-                corner = Direction.WEST;
-            } else if (dir == Direction.WEST) {
-                corner = Direction.NORTH;
-            } else if (dir == Direction.EAST) {
-                corner = Direction.SOUTH;
+            if (dir == EnumFacing.NORTH) {
+                corner = EnumFacing.EAST;
+            } else if (dir == EnumFacing.SOUTH) {
+                corner = EnumFacing.WEST;
+            } else if (dir == EnumFacing.WEST) {
+                corner = EnumFacing.NORTH;
+            } else if (dir == EnumFacing.EAST) {
+                corner = EnumFacing.SOUTH;
             } else {
                 continue;
             }

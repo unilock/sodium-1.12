@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.model.light;
 
 import me.jellysquid.mods.sodium.client.render.entity.EntityLightSampler;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -13,18 +13,18 @@ public class EntityLighter {
     private static final double MAX_LIGHTMAP_COORD = 240.0D;
 
     public static <T extends Entity> int getBlendedLight(EntityLightSampler<T> lighter, T entity, float tickDelta) {
-        boolean calcBlockLight = !entity.isOnFire();
+        boolean calcBlockLight = !entity.isBurning();
 
         // Find the interpolated position of the entity
-        double x1 = MathHelper.lerp(tickDelta, entity.prevX, entity.getX());
-        double y1 = MathHelper.lerp(tickDelta, entity.prevY, entity.getY());
-        double z1 = MathHelper.lerp(tickDelta, entity.prevZ, entity.getZ());
+        double x1 = MathHelper.clampedLerp(tickDelta, entity.prevPosX, entity.posX);
+        double y1 = MathHelper.clampedLerp(tickDelta, entity.prevPosY, entity.posY);
+        double z1 = MathHelper.clampedLerp(tickDelta, entity.prevPosZ, entity.posZ);
 
         // Bounding boxes with no volume cause issues, ensure they're non-zero
         // Notably, armor stands in "Marker" mode decide this is a cute thing to do
         // https://github.com/jellysquid3/sodium-fabric/issues/60
-        double width = Math.max(entity.getWidth(), MIN_BOX_SIZE);
-        double height = Math.max(entity.getHeight(), MIN_BOX_SIZE);
+        double width = Math.max(entity.width, MIN_BOX_SIZE);
+        double height = Math.max(entity.height, MIN_BOX_SIZE);
 
         double x2 = x1 + width;
         double y2 = y1 + height;
@@ -45,7 +45,7 @@ public class EntityLighter {
         double sl = 0;
         double bl = 0;
 
-        BlockPos.Mutable pos = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
         // Iterate over every block in the sampling volume
         for (int bX = bMinX; bX < bMaxX; bX++) {
@@ -57,12 +57,12 @@ public class EntityLighter {
                 double iy2 = Math.min(bY + 1, y2);
 
                 for (int bZ = bMinZ; bZ < bMaxZ; bZ++) {
-                    pos.set(bX, bY, bZ);
+                    pos.setPos(bX, bY, bZ);
 
-                    BlockState blockState = entity.world.getBlockState(pos);
+                    IBlockState blockState = entity.world.getBlockState(pos);
 
                     // Do not consider light-blocking volumes
-                    if (blockState.isOpaqueFullCube(entity.world, pos) && blockState.getLightValue(entity.world, pos) <= 0) {
+                    if (blockState.isOpaqueCube() && blockState.getLightValue(entity.world, pos) <= 0) {
                         continue;
                     }
 

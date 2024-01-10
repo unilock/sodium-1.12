@@ -1,16 +1,16 @@
 package me.jellysquid.mods.sodium.client.render;
 
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.system.MemoryStack;
+import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
+import org.lwjgl3.system.MemoryStack;
+import repack.joml.Matrix4f;
 
 import java.nio.FloatBuffer;
 
 public class GameRendererContext {
     private static Matrix4f PROJECTION_MATRIX;
 
-    public static void captureProjectionMatrix(Matrix4f matrix) {
-        PROJECTION_MATRIX = matrix.copy();
+    public static void captureProjectionMatrix(org.lwjgl.util.vector.Matrix4f matrix) {
+        PROJECTION_MATRIX = new Matrix4f(matrix.m00, matrix.m01, matrix.m02, matrix.m03, matrix.m10, matrix.m11, matrix.m12, matrix.m13, matrix.m20, matrix.m21, matrix.m22, matrix.m23, matrix.m30, matrix.m31, matrix.m32, matrix.m33);
     }
 
     /**
@@ -29,9 +29,9 @@ public class GameRendererContext {
 
         FloatBuffer bufModelViewProjection = memoryStack.mallocFloat(16);
 
-        Matrix4f matrix = PROJECTION_MATRIX.copy();
-        matrix.multiply(matrices.getModel());
-        matrix.writeRowFirst(bufModelViewProjection);
+        Matrix4f matrix = new Matrix4f(PROJECTION_MATRIX);
+        matrix.mul(matrices.getModel());
+        matrix.get(bufModelViewProjection);
 
         return bufModelViewProjection;
     }

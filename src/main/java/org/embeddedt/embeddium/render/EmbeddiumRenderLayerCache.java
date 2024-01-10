@@ -3,11 +3,10 @@ package org.embeddedt.embeddium.render;
 import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.state.State;
+import me.jellysquid.mods.sodium.client.util.EnumUtil;
+import net.minecraft.block.state.IBlockProperties;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockRenderLayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +14,18 @@ import java.util.Objects;
 import java.util.concurrent.locks.StampedLock;
 
 /**
- * Implements a caching layer over Forge's predicate logic in {@link RenderLayers}. There is quite a bit
+ * Implements a caching layer over Forge's predicate logic in {@link BlockRenderLayer}. There is quite a bit
  * of overhead involved in dealing with the arbitrary predicates, so we cache a list of render layers
  * for each state (lazily), and just return that list. The StampedLock we use is not free, but it's
  * much more efficient than Forge's synchronization-based approach.
  */
 public class EmbeddiumRenderLayerCache {
     private static final boolean DISABLE_CACHE = Boolean.getBoolean("embeddium.disableRenderLayerCache");
-    private static final Reference2ReferenceOpenHashMap<RenderLayer, ImmutableList<RenderLayer>> SINGLE_LAYERS = new Reference2ReferenceOpenHashMap<>();
-    private static final Reference2ReferenceOpenHashMap<State<?, ?>, ImmutableList<RenderLayer>> LAYERS_BY_STATE = new Reference2ReferenceOpenHashMap<>();
+    private static final Reference2ReferenceOpenHashMap<BlockRenderLayer, ImmutableList<BlockRenderLayer>> SINGLE_LAYERS = new Reference2ReferenceOpenHashMap<>();
+    private static final Reference2ReferenceOpenHashMap<IBlockProperties, ImmutableList<BlockRenderLayer>> LAYERS_BY_STATE = new Reference2ReferenceOpenHashMap<>();
     private static final StampedLock lock = new StampedLock();
 
-    private static <O, S, H extends State<O, S>> ImmutableList<RenderLayer> findExisting(H state) {
+    private static <H extends IBlockProperties> ImmutableList<BlockRenderLayer> findExisting(H state) {
         long stamp = lock.readLock();
 
         try {
@@ -41,12 +40,12 @@ public class EmbeddiumRenderLayerCache {
      * @param state a BlockState or FluidState
      * @return a list of render layers that the block/fluid state should be rendered on
      */
-    public static <O, S, H extends State<O, S>>  List<RenderLayer> forState(H state) {
+    public static <H extends IBlockProperties>  List<BlockRenderLayer> forState(H state) {
         if(DISABLE_CACHE) {
             return generateList(state);
         }
 
-        ImmutableList<RenderLayer> list = findExisting(state);
+        ImmutableList<BlockRenderLayer> list = findExisting(state);
 
         if(list == null) {
             list = createList(state);
@@ -55,19 +54,12 @@ public class EmbeddiumRenderLayerCache {
         return list;
     }
 
-    private static <O, S, H extends State<O, S>> List<RenderLayer> generateList(H state) {
-        List<RenderLayer> foundLayers = new ArrayList<>(2);
-        if(state instanceof BlockState) {
-            BlockState blockState = (BlockState)state;
-            for(RenderLayer layer : RenderLayer.getBlockLayers()) {
-                if(RenderLayers.canRenderInLayer(blockState, layer)) {
-                    foundLayers.add(layer);
-                }
-            }
-        } else if(state instanceof FluidState) {
-            FluidState fluidState = (FluidState)state;
-            for(RenderLayer layer : RenderLayer.getBlockLayers()) {
-                if(RenderLayers.canRenderInLayer(fluidState, layer)) {
+    private static <H extends IBlockProperties> List<BlockRenderLayer> generateList(H state) {
+        List<BlockRenderLayer> foundLayers = new ArrayList<>(2);
+        if(state instanceof IBlockState) {
+            IBlockState blockState = (IBlockState) state;
+            for(BlockRenderLayer layer : EnumUtil.LAYERS) {
+                if(blockState.getBlock().canRenderInLayer(blockState, layer)) {
                     foundLayers.add(layer);
                 }
             }
@@ -78,10 +70,10 @@ public class EmbeddiumRenderLayerCache {
         return foundLayers;
     }
 
-    private static <O, S, H extends State<O, S>> ImmutableList<RenderLayer> createList(H state) {
-        List<RenderLayer> foundLayers = generateList(state);
+    private static <H extends IBlockProperties> ImmutableList<BlockRenderLayer> createList(H state) {
+        List<BlockRenderLayer> foundLayers = generateList(state);
 
-        ImmutableList<RenderLayer> layerList;
+        ImmutableList<BlockRenderLayer> layerList;
 
         // Deduplicate simple lists
         if(foundLayers.isEmpty()) {
@@ -117,7 +109,7 @@ public class EmbeddiumRenderLayerCache {
     }
 
     static {
-        for(RenderLayer layer : RenderLayer.getBlockLayers()) {
+        for(BlockRenderLayer layer : EnumUtil.LAYERS) {
             SINGLE_LAYERS.put(layer, ImmutableList.of(layer));
         }
         if(DISABLE_CACHE) {

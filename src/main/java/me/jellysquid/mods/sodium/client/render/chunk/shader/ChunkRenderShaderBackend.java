@@ -11,8 +11,8 @@ import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderBackend;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkMeshAttribute;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.EnumMap;
 
@@ -32,13 +32,13 @@ public abstract class ChunkRenderShaderBackend<T extends ChunkGraphicsState>
 
     private ChunkProgram createShader(RenderDevice device, ChunkFogMode fogMode, GlVertexFormat<ChunkMeshAttribute> vertexFormat) {
         GlShader vertShader = ShaderLoader.loadShader(device, ShaderType.VERTEX,
-                new Identifier("sodium", "chunk_gl20.v.glsl"), fogMode.getDefines());
+                new ResourceLocation("sodium", "chunk_gl20.v.glsl"), fogMode.getDefines());
 
         GlShader fragShader = ShaderLoader.loadShader(device, ShaderType.FRAGMENT,
-                new Identifier("sodium", "chunk_gl20.f.glsl"), fogMode.getDefines());
+                new ResourceLocation("sodium", "chunk_gl20.f.glsl"), fogMode.getDefines());
 
         try {
-            return GlProgram.builder(new Identifier("sodium", "chunk_shader"))
+            return GlProgram.builder(new ResourceLocation("sodium", "chunk_shader"))
                     .attachShader(vertShader)
                     .attachShader(fragShader)
                     .bindAttribute("a_Pos", ChunkShaderBindingPoints.POSITION)

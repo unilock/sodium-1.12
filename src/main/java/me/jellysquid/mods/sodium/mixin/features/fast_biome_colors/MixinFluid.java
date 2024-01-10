@@ -1,4 +1,4 @@
-package me.jellysquid.mods.sodium.mixin.features.fast_biome_colors;
+/*package me.jellysquid.mods.sodium.mixin.features.fast_biome_colors;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -14,4 +14,4 @@ public class MixinFluid implements BlockColorSettings<FluidState> {
     public boolean useSmoothColorBlending(BlockRenderView view, FluidState state, BlockPos pos) {
         return true;
     }
-}
+}*/

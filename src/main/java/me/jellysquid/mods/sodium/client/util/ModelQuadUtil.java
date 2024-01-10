@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.util;
 
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
-import net.minecraft.util.math.Direction;
+import net.minecraft.util.EnumFacing;
 
 /**
  * Provides some utilities and constants for interacting with vanilla's model quad vertex format.
@@ -34,18 +34,18 @@ public class ModelQuadUtil {
 
     static {
         for (int i = 0; i < NORMALS.length; i++) {
-            NORMALS[i] = Norm3b.pack(DirectionUtil.ALL_DIRECTIONS[i].getVector());
+            NORMALS[i] = Norm3b.pack(DirectionUtil.ALL_DIRECTIONS[i].getDirectionVec());
         }
     }
 
     /**
      * Returns the normal vector for a model quad with the given {@param facing}.
      */
-    public static int getFacingNormal(Direction facing) {
+    public static int getFacingNormal(EnumFacing facing) {
         return NORMALS[facing.ordinal()];
     }
 
-    public static int getFacingNormal(Direction facing, int bakedNormal) {
+    public static int getFacingNormal(EnumFacing facing, int bakedNormal) {
         if(!hasNormal(bakedNormal))
             return NORMALS[facing.ordinal()];
         return bakedNormal;

@@ -1,8 +1,8 @@
 package me.jellysquid.mods.sodium.client.gl.func;
 
-import org.lwjgl.opengl.ARBInstancedArrays;
-import org.lwjgl.opengl.GL33C;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl3.opengl.ARBInstancedArrays;
+import org.lwjgl3.opengl.GL33C;
+import org.lwjgl3.opengl.GLCapabilities;
 
 public enum GlInstancedArrayFunctions {
     CORE {

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.system.MemoryUtil;
 
 import me.jellysquid.mods.sodium.client.gl.util.MemoryUtilHelper;
 

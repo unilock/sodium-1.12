@@ -1,59 +1,52 @@
-package me.jellysquid.mods.sodium.mixin.features.entity.smooth_lighting;
+/*package me.jellysquid.mods.sodium.mixin.features.entity.smooth_lighting;
 
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
 import me.jellysquid.mods.sodium.client.model.light.EntityLighter;
 import me.jellysquid.mods.sodium.client.render.entity.EntityLightSampler;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.PaintingEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPainting;
+import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PaintingEntityRenderer.class)
-public abstract class MixinPaintingEntityRenderer extends EntityRenderer<PaintingEntity> implements EntityLightSampler<PaintingEntity> {
-    private PaintingEntity entity;
+@Mixin(RenderPainting.class)
+public abstract class MixinPaintingEntityRenderer extends Render<EntityPainting> implements EntityLightSampler<EntityPainting> {
+    private EntityPainting entity;
     private float tickDelta;
 
-    protected MixinPaintingEntityRenderer(EntityRenderDispatcher dispatcher) {
-        super(dispatcher);
+    protected MixinPaintingEntityRenderer(RenderManager renderManager) {
+        super(renderManager);
     }
 
-    @Inject(method = "render", at = @At(value = "HEAD"))
-    public void preRender(PaintingEntity paintingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    @Inject(method = "doRender(Lnet/minecraft/entity/item/EntityPainting;DDDFF)V", at = @At(value = "HEAD"))
+    public void preRender(EntityPainting paintingEntity, double x, double y, double z, float p_76986_8_, float partialTicks, CallbackInfo ci) {
         this.entity = paintingEntity;
-        this.tickDelta = g;
+        this.tickDelta = partialTicks;
     }
 
-    /**
-     * @author FlashyReese
-     * @reason Redirect Lightmap coord with Sodium's EntityLighter.
-     */
-    @Redirect(method = "func_229122_a_", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;getLightmapCoordinates(Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/util/math/BlockPos;)I"))
-    public int redirectLightmapCoord(BlockRenderView world, BlockPos pos) {
+    @Redirect(method = "setLightmap", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getCombinedLight(Lnet/minecraft/util/math/BlockPos;I)I"))
+    public int redirectLightmapCoord(World world, BlockPos pos, int type) {
         if (SodiumClientMod.options().quality.smoothLighting == SodiumGameOptions.LightingQuality.HIGH && this.entity != null) {
             return EntityLighter.getBlendedLight(this, this.entity, tickDelta);
         } else {
-            return WorldRenderer.getLightmapCoordinates(world, pos);
+            return world.getCombinedLight(pos, type);
         }
     }
 
     @Override
-    public int bridge$getBlockLight(PaintingEntity entity, BlockPos pos) {
+    public int bridge$getBlockLight(EntityPainting entity, BlockPos pos) {
         return this.getBlockLight(entity, pos);
     }
 
     @Override
-    public int bridge$getSkyLight(PaintingEntity entity, BlockPos pos) {
+    public int bridge$getSkyLight(EntityPainting entity, BlockPos pos) {
         return this.method_27950(entity, pos);
     }
-}
+}*/

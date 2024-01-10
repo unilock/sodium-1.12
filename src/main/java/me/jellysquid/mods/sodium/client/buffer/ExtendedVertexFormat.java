@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.buffer;
 
-import net.minecraft.client.render.VertexFormatElement;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 
 public interface ExtendedVertexFormat {
     Element[] embeddium$getExtendedElements();

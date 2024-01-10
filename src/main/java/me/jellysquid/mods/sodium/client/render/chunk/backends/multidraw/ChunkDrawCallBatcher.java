@@ -2,7 +2,7 @@ package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.system.MemoryUtil;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

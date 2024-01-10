@@ -1,14 +1,8 @@
 pluginManagement {
     repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-		maven { url "https://maven.architectury.dev/" }
-		maven { url "https://files.minecraftforge.net/maven/" }
-        mavenCentral()
         gradlePluginPortal()
+        maven { url = 'https://gitlab.com/api/v4/projects/26758973/packages/maven' }
     }
 }
 
-rootProject.name = "embeddium-${getProperty("minecraft_version")}"
+rootProject.name = "${mod_name}"

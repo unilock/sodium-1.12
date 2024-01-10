@@ -1,34 +1,26 @@
 package me.jellysquid.mods.sodium.mixin.features.chunk_rendering;
 
-import me.jellysquid.mods.sodium.client.world.ClientWorldExtended;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import me.jellysquid.mods.sodium.client.util.ExtChunkProviderClient;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.client.multiplayer.WorldClient;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Supplier;
+@Mixin(WorldClient.class)
+public class MixinClientWorld {
 
-@Mixin(ClientWorld.class)
-public abstract class MixinClientWorld implements ClientWorldExtended {
-    private long biomeSeed;
-
-    /**
-     * Captures the biome generation seed so that our own caches can make use of it.
-     */
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(ClientPlayNetworkHandler clientPlayNetworkHandler, ClientWorld.Properties properties, RegistryKey<World> registryKey, DimensionType dimensionType, int i, Supplier<Profiler> supplier, WorldRenderer worldRenderer, boolean bl, long seed, CallbackInfo ci) {
-        this.biomeSeed = seed;
+    @Shadow
+    public ChunkProviderClient getChunkProvider() {
+        return null;
     }
 
-    @Override
-    public long getBiomeSeed() {
-        return this.biomeSeed;
+    @Inject(method = "refreshVisibleChunks", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;floor(D)I", shift = At.Shift.AFTER, ordinal = 1))
+    private void updateViewCenter(CallbackInfo ci) {
+        ExtChunkProviderClient ext = (ExtChunkProviderClient) getChunkProvider();
+        ext.setNeedsTrackingUpdate(true);
     }
+
 }

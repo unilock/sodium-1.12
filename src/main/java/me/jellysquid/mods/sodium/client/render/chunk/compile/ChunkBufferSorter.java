@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntArrays;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.format.hfp.HFPModelVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.format.sfp.SFPModelVertexType;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl3.system.MemoryStack;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

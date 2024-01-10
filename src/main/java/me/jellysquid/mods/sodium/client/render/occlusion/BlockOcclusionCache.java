@@ -1,21 +1,18 @@
 package me.jellysquid.mods.sodium.client.render.occlusion;
 
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SideShapeType;
-import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.world.IBlockAccess;
 
 public class BlockOcclusionCache {
     private static final byte UNCACHED_VALUE = (byte) 127;
 
     private final Object2ByteLinkedOpenHashMap<CachedOcclusionShapeTest> map;
     private final CachedOcclusionShapeTest cachedTest = new CachedOcclusionShapeTest();
-    private final BlockPos.Mutable cpos = new BlockPos.Mutable();
+    private final BlockPos.MutableBlockPos cpos = new BlockPos.MutableBlockPos();
 
     public BlockOcclusionCache() {
         this.map = new Object2ByteLinkedOpenHashMap<>(2048, 0.5F);
@@ -29,23 +26,23 @@ public class BlockOcclusionCache {
      * @param facing The facing direction of the side to check
      * @return True if the block side facing {@param dir} is not occluded, otherwise false
      */
-    public boolean shouldDrawSide(BlockState selfState, BlockView view, BlockPos pos, Direction facing) {
-        BlockPos.Mutable adjPos = this.cpos;
-        adjPos.set(pos.getX() + facing.getOffsetX(), pos.getY() + facing.getOffsetY(), pos.getZ() + facing.getOffsetZ());
+    public boolean shouldDrawSide(IBlockState selfState, IBlockAccess view, BlockPos pos, EnumFacing facing) {
+        BlockPos.MutableBlockPos adjPos = this.cpos;
+        adjPos.setPos(pos.getX() + facing.getXOffset(), pos.getY() + facing.getYOffset(), pos.getZ() + facing.getZOffset());
 
-        BlockState adjState = view.getBlockState(adjPos);
+        IBlockState adjState = view.getBlockState(adjPos);
 
-        if (selfState.isSideInvisible(adjState, facing)) {
+        if (!selfState.shouldSideBeRendered(view, adjPos, facing)) {
             return false;
-        } else if (adjState.isOpaque()) {
-            VoxelShape selfShape = selfState.getCullingFace(view, pos, facing);
-            VoxelShape adjShape = adjState.getCullingFace(view, adjPos, facing.getOpposite());
+        } else if (adjState.getMaterial().isOpaque()) {
+            BlockFaceShape selfShape = selfState.getBlockFaceShape(view, pos, facing);
+            BlockFaceShape adjShape = adjState.getBlockFaceShape(view, adjPos, facing.getOpposite());
 
-            if (selfShape == VoxelShapes.fullCube() && adjShape == VoxelShapes.fullCube()) {
+            if (selfShape == BlockFaceShape.SOLID && adjShape == BlockFaceShape.SOLID) {
                 return false;
             }
 
-            if (selfShape.isEmpty()) {
+            if (selfShape == BlockFaceShape.UNDEFINED) {
                 // Upstream Sodium only returns true under stricter conditions than this, in order to cull faces in
                 // unusual block arrangements like a potted cacti under a solid block.
                 // However, that fix has the side effect of causing block models with improperly specified cullfaces
@@ -69,7 +66,7 @@ public class BlockOcclusionCache {
         }
     }
 
-    private boolean calculate(VoxelShape selfShape, VoxelShape adjShape) {
+    private boolean calculate(BlockFaceShape selfShape, BlockFaceShape adjShape) {
         CachedOcclusionShapeTest cache = this.cachedTest;
         cache.a = selfShape;
         cache.b = adjShape;
@@ -81,7 +78,7 @@ public class BlockOcclusionCache {
             return cached == 1;
         }
 
-        boolean ret = VoxelShapes.matchesAnywhere(selfShape, adjShape, BooleanBiFunction.ONLY_FIRST);
+        boolean ret = selfShape == adjShape;
 
         this.map.put(cache.copy(), (byte) (ret ? 1 : 0));
 
@@ -93,14 +90,14 @@ public class BlockOcclusionCache {
     }
 
     private static final class CachedOcclusionShapeTest {
-        private VoxelShape a, b;
+        private BlockFaceShape a, b;
         private int hashCode;
 
         private CachedOcclusionShapeTest() {
 
         }
 
-        private CachedOcclusionShapeTest(VoxelShape a, VoxelShape b, int hashCode) {
+        private CachedOcclusionShapeTest(BlockFaceShape a, BlockFaceShape b, int hashCode) {
             this.a = a;
             this.b = b;
             this.hashCode = hashCode;

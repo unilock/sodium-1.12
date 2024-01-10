@@ -1,8 +1,8 @@
 package me.jellysquid.mods.sodium.client.gl.func;
 
-import org.lwjgl.opengl.ARBMultiDrawIndirect;
-import org.lwjgl.opengl.GL43C;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl3.opengl.ARBMultiDrawIndirect;
+import org.lwjgl3.opengl.GL43C;
+import org.lwjgl3.opengl.GLCapabilities;
 
 public enum GlIndirectMultiDrawFunctions {
     CORE {

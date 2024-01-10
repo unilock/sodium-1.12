@@ -1,0 +1,52 @@
+{
+  "package": "me.jellysquid.mods.sodium.mixin",
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "plugin": "me.jellysquid.mods.sodium.mixin.SodiumMixinPlugin",
+  "refmap": "embeddium-refmap.json",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  },
+  "client": [
+    "core.MixinCrashReportSection",
+    "core.MixinDirection",
+    "core.frustum.MixinFrustum",
+    "core.matrix.MixinGameRenderer",
+    "core.model.MixinBlockColors",
+    "core.model.MixinItemColors",
+    "core.pipeline.MixinBakedQuad",
+    "core.pipeline.MixinBufferBuilder",
+    "core.pipeline.MixinVertexFormat",
+    "features.block.MixinBlockModelRenderer",
+    "features.block.MixinWorldRenderer",
+    "features.buffer_builder.fast_advance.MixinVertexFormat",
+    "features.buffer_builder.fast_sort.MixinBufferBuilder",
+    "features.chunk_rendering.MixinChunkBuilder",
+    "features.chunk_rendering.MixinClientChunkManager",
+    "features.chunk_rendering.MixinClientWorld",
+    "features.chunk_rendering.MixinWorldRenderer",
+    "features.debug.MixinDebugHud",
+    "features.fast_biome_colors.MixinBlock",
+    "features.gui.MixinDebugHud",
+    "features.model.MixinMultipartBakedModel",
+    "features.model.MixinWeightedBakedModel",
+    "features.options.MixinInGameHud",
+    "features.options.MixinMinecraftClient",
+    "features.options.MixinOptionsScreen",
+    "features.options.MixinWorldRenderer",
+    "features.render_layer.leaves.MixinLeavesBlock",
+    "features.sky.MixinWorldRenderer",
+    "features.texture_tracking.MixinDrawableHelper",
+    "features.texture_tracking.MixinSprite",
+    "features.texture_tracking.MixinSpriteAtlasTexture",
+    "features.texture_tracking.MixinSpriteBillboardParticle",
+    "features.world_ticking.MixinClientWorld"
+  ],
+  "mixins": [
+    "core.MixinBlockLiquid"
+  ]
+}

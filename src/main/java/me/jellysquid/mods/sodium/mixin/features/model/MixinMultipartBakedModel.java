@@ -1,15 +1,13 @@
 package me.jellysquid.mods.sodium.mixin.features.model;
 
+import com.google.common.base.Predicate;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.MultipartBakedModel;
-import net.minecraft.util.math.Direction;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 
-import net.minecraftforge.client.model.data.MultipartModelData;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraft.util.EnumFacing;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -17,28 +15,27 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.*;
 import java.util.concurrent.locks.StampedLock;
-import java.util.function.Predicate;
 
 @Mixin(MultipartBakedModel.class)
 public class MixinMultipartBakedModel {
-	private final Map<BlockState, BakedModel[]> stateCacheFast = new Reference2ReferenceOpenHashMap<>();
+	private final Map<IBlockState, IBakedModel[]> stateCacheFast = new Reference2ReferenceOpenHashMap<>();
     private final StampedLock lock = new StampedLock();
 
     @Shadow
     @Final
-    private List<Pair<Predicate<BlockState>, BakedModel>> components;
+    private Map<Predicate<IBlockState>, IBakedModel> selectors;
 
     /**
      * @author JellySquid
      * @reason Avoid expensive allocations and replace bitfield indirection
      */
     @Overwrite
-    public List<BakedQuad> getQuads(BlockState state, Direction face, Random random, IModelData modelData) {
+    public List<BakedQuad> getQuads(IBlockState state, EnumFacing face, long random) {
         if (state == null) {
             return Collections.emptyList();
         }
 
-        BakedModel[] models;
+        IBakedModel[] models;
 
         long readStamp = this.lock.readLock();
         try {
@@ -50,15 +47,15 @@ public class MixinMultipartBakedModel {
         if (models == null) {
             long writeStamp = this.lock.writeLock();
             try {
-                List<BakedModel> modelList = new ArrayList<>(this.components.size());
+                List<IBakedModel> modelList = new ArrayList<>(this.selectors.size());
 
-                for (Pair<Predicate<BlockState>, BakedModel> pair : this.components) {
-                    if (pair.getLeft().test(state)) {
-                        modelList.add(pair.getRight());
+                for (Map.Entry<Predicate<IBlockState>, IBakedModel> pair : this.selectors.entrySet()) {
+                    if (pair.getKey().test(state)) {
+                        modelList.add(pair.getValue());
                     }
                 }
 
-                models = modelList.toArray(new BakedModel[modelList.size()]);
+                models = modelList.toArray(new IBakedModel[modelList.size()]);
                 this.stateCacheFast.put(state, models);
             } finally {
                 this.lock.unlockWrite(writeStamp);
@@ -66,11 +63,9 @@ public class MixinMultipartBakedModel {
         }
 
         List<BakedQuad> quads = new ArrayList<>();
-        long seed = random.nextLong();
 
-        for (BakedModel model : models) {
-            random.setSeed(seed);
-            quads.addAll(model.getQuads(state, face, random, MultipartModelData.resolve(model, modelData)));
+        for (IBakedModel model : models) {
+            quads.addAll(model.getQuads(state, face, random));
         }
 
         return quads;

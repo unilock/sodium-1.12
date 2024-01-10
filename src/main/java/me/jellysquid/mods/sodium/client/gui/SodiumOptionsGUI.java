@@ -5,38 +5,35 @@ import me.jellysquid.mods.sodium.client.gui.options.*;
 import me.jellysquid.mods.sodium.client.gui.options.control.Control;
 import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
 import me.jellysquid.mods.sodium.client.gui.options.storage.OptionStorage;
+import me.jellysquid.mods.sodium.client.gui.utils.Drawable;
+import me.jellysquid.mods.sodium.client.gui.utils.Element;
 import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
-import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.util.Dim2i;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.VideoOptionsScreen;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Language;
-import net.minecraft.util.Util;
-import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiVideoSettings;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
-public class SodiumOptionsGUI extends Screen {
+public class SodiumOptionsGUI extends GuiScreen {
+
+    private final List<Element> children = new CopyOnWriteArrayList<>();
+
     private final List<OptionPage> pages = new ArrayList<>();
 
     private final List<ControlElement<?>> controls = new ArrayList<>();
     private final List<Drawable> drawable = new ArrayList<>();
 
-    private final Screen prevScreen;
+    public final GuiScreen prevScreen;
 
     private OptionPage currentPage;
 
@@ -46,8 +43,8 @@ public class SodiumOptionsGUI extends Screen {
     private boolean hasPendingChanges;
     private ControlElement<?> hoveredElement;
 
-    public SodiumOptionsGUI(Screen prevScreen) {
-        super(new TranslatableText("Embeddium Options"));
+    public SodiumOptionsGUI(GuiScreen prevScreen) {
+        super();
 
         this.prevScreen = prevScreen;
 
@@ -64,8 +61,8 @@ public class SodiumOptionsGUI extends Screen {
     }
 
     @Override
-    protected void init() {
-        super.init();
+    public void initGui() {
+        super.initGui();
 
         this.rebuildGUI();
     }
@@ -87,10 +84,10 @@ public class SodiumOptionsGUI extends Screen {
         this.rebuildGUIPages();
         this.rebuildGUIOptions();
 
-        this.undoButton = new FlatButtonWidget(new Dim2i(this.width - 211, this.height - 26, 65, 20), new TranslatableText("sodium.options.buttons.undo").getString(), this::undoChanges);
-        this.applyButton = new FlatButtonWidget(new Dim2i(this.width - 142, this.height - 26, 65, 20), new TranslatableText("sodium.options.buttons.apply").getString(), this::applyChanges);
-        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 26, 65, 20), new TranslatableText("gui.done").getString(), this::onClose);
-        this.donateButton = new FlatButtonWidget(new Dim2i(this.width - 128, 6, 100, 20), new TranslatableText("sodium.options.buttons.donate").getString(), this::openDonationPage);
+        this.undoButton = new FlatButtonWidget(new Dim2i(this.width - 211, this.height - 26, 65, 20), new TextComponentTranslation("sodium.options.buttons.undo").getFormattedText(), this::undoChanges);
+        this.applyButton = new FlatButtonWidget(new Dim2i(this.width - 142, this.height - 26, 65, 20), new TextComponentTranslation("sodium.options.buttons.apply").getFormattedText(), this::applyChanges);
+        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 26, 65, 20), new TextComponentTranslation("gui.done").getFormattedText(), this::onGuiClosed);
+        this.donateButton = new FlatButtonWidget(new Dim2i(this.width - 128, 6, 100, 20), new TextComponentTranslation("sodium.options.buttons.donate").getFormattedText(), this::openDonationPage);
         this.hideDonateButton = new FlatButtonWidget(new Dim2i(this.width - 26, 6, 20, 20), "x", this::hideDonationButton);
 
         if (SodiumClientMod.options().notifications.hideDonationButton) {
@@ -133,7 +130,7 @@ public class SodiumOptionsGUI extends Screen {
         int y = 6;
 
         for (OptionPage page : this.pages) {
-            int width = 12 + this.textRenderer.getWidth(page.getNewName());
+            int width = 12 + this.fontRenderer.getStringWidth(page.getNewName().getFormattedText());
 
             FlatButtonWidget button = new FlatButtonWidget(new Dim2i(x, y, width, 18), page.getNewName(), () -> this.setPage(page));
             button.setSelected(this.currentPage == page);
@@ -167,17 +164,17 @@ public class SodiumOptionsGUI extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
-        super.renderBackground(matrixStack);
+    public void drawScreen(int mouseX, int mouseY, float delta) {
+        super.drawDefaultBackground();
 
         this.updateControls();
 
         for (Drawable drawable : this.drawable) {
-            drawable.render(matrixStack, mouseX, mouseY, delta);
+            drawable.render(mouseX, mouseY, delta);
         }
 
         if (this.hoveredElement != null) {
-            this.renderOptionTooltip(matrixStack, this.hoveredElement);
+            this.renderOptionTooltip(this.hoveredElement);
         }
     }
 
@@ -215,7 +212,7 @@ public class SodiumOptionsGUI extends Screen {
         return this.controls.stream();
     }
 
-    private void renderOptionTooltip(MatrixStack matrixStack, ControlElement<?> element) {
+    private void renderOptionTooltip(ControlElement<?> element) {
         Dim2i dim = element.getDimensions();
 
         int textPadding = 3;
@@ -227,12 +224,12 @@ public class SodiumOptionsGUI extends Screen {
         int boxX = dim.getLimitX() + boxPadding;
 
         Option<?> option = element.getOption();
-        List<OrderedText> tooltip = new ArrayList<>(this.textRenderer.wrapLines(option.getTooltip(), boxWidth - (textPadding * 2)));
+        List<String> tooltip = new ArrayList<>(this.fontRenderer.listFormattedStringToWidth(option.getTooltip().getFormattedText(), boxWidth - (textPadding * 2)));
 
         OptionImpact impact = option.getImpact();
 
         if (impact != null) {
-        	tooltip.add(Language.getInstance().reorder(new TranslatableText("sodium.options.performance_impact_string", impact.toDisplayString()).formatted(Formatting.GRAY)));
+            tooltip.add(TextFormatting.GRAY + I18n.format("sodium.options.performance_impact_string", impact.toDisplayString()));
         }
 
         int boxHeight = (tooltip.size() * 12) + boxPadding;
@@ -244,10 +241,10 @@ public class SodiumOptionsGUI extends Screen {
             boxY -= boxYLimit - boxYCutoff;
         }
 
-        this.fillGradient(matrixStack, boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000, 0xE0000000);
+        this.drawGradientRect(boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000, 0xE0000000);
 
         for (int i = 0; i < tooltip.size(); i++) {
-            this.textRenderer.draw(matrixStack, tooltip.get(i), boxX + textPadding, boxY + textPadding + (i * 12), 0xFFFFFFFF);
+            this.fontRenderer.drawString(tooltip.get(i), boxX + textPadding, boxY + textPadding + (i * 12), 0xFFFFFFFF);
         }
     }
     
@@ -266,15 +263,13 @@ public class SodiumOptionsGUI extends Screen {
             dirtyStorages.add(option.getStorage());
         }));
 
-        MinecraftClient client = MinecraftClient.getInstance();
-
         if (flags.contains(OptionFlag.REQUIRES_RENDERER_RELOAD)) {    	
-            client.worldRenderer.reload();
+            this.mc.renderGlobal.loadRenderers();
         }
 
         if (flags.contains(OptionFlag.REQUIRES_ASSET_RELOAD)) {
-            client.setMipmapLevels(client.options.mipmapLevels);
-            client.reloadResourcesConcurrently();
+            this.mc.getTextureMapBlocks().setMipmapLevels(this.mc.gameSettings.mipmapLevels);
+            this.mc.refreshResources();
         }
 
         for (OptionStorage<?> storage : dirtyStorages) {
@@ -288,28 +283,44 @@ public class SodiumOptionsGUI extends Screen {
     }
 
     private void openDonationPage() {
-        Util.getOperatingSystem()
-                .open("https://caffeinemc.net/donate");
+        me.jellysquid.mods.sodium.client.gui.utils.URLUtils.open("https://caffeinemc.net/donate");
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_P && (modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
-            MinecraftClient.getInstance().openScreen(new VideoOptionsScreen(this.prevScreen, MinecraftClient.getInstance().options));
-
-            return true;
+    public void keyTyped(char typedChar, int keyCode) {
+        if(keyCode == Keyboard.KEY_ESCAPE && !shouldCloseOnEsc()) {
+            return;
+        } else if (keyCode == Keyboard.KEY_ESCAPE) {
+            onGuiClosed();
+            return;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        if (keyCode == Keyboard.KEY_P && isShiftKeyDown()) {
+            this.mc.displayGuiScreen(new GuiVideoSettings(this.prevScreen, this.mc.gameSettings));
+        }
     }
 
-    @Override
     public boolean shouldCloseOnEsc() {
         return !this.hasPendingChanges;
     }
 
     @Override
-    public void onClose() {
-        this.client.openScreen(this.prevScreen);
+    public void onGuiClosed() {
+        this.mc.displayGuiScreen(this.prevScreen);
+        super.onGuiClosed();
+    }
+
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+
+        this.children.forEach(element -> element.mouseClicked(mouseX, mouseY, mouseButton));
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+        super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+
+        this.children.forEach(element -> element.mouseDragged(mouseX, mouseY));
     }
 }

@@ -2,12 +2,11 @@ package me.jellysquid.mods.sodium.client.gl.shader;
 
 import me.jellysquid.mods.sodium.client.gl.GlObject;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL20C;
-
-import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl3.opengl.GL20;
+import org.lwjgl3.opengl.GL20C;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,18 +18,18 @@ import java.io.StringReader;
 public class GlShader extends GlObject {
     private static final Logger LOGGER = LogManager.getLogger(GlShader.class);
 
-    private final Identifier name;
+    private final ResourceLocation name;
 
-    public GlShader(RenderDevice owner, ShaderType type, Identifier name, String src, ShaderConstants constants) {
+    public GlShader(RenderDevice owner, ShaderType type, ResourceLocation name, String src, ShaderConstants constants) {
         super(owner);
 
         this.name = name;
 
         src = processShader(src, constants);
 
-        int handle = GlStateManager.createShader(type.id);
+        int handle = GL20.glCreateShader(type.id);
         ShaderWorkarounds.safeShaderSource(handle, src);
-        GlStateManager.compileShader(handle);
+        GL20.glCompileShader(handle);
 
         String log = GL20C.glGetShaderInfoLog(handle);
 
@@ -38,7 +37,7 @@ public class GlShader extends GlObject {
             LOGGER.warn("Shader compilation log for " + this.name + ": " + log);
         }
 
-        int result = GlStateManager.getShader(handle, GL20C.GL_COMPILE_STATUS);
+        int result = GL20.glGetShaderi(handle, GL20C.GL_COMPILE_STATUS);
 
         if (result != GL20C.GL_TRUE) {
             throw new RuntimeException("Shader compilation failed, see log for details");
@@ -80,12 +79,12 @@ public class GlShader extends GlObject {
         return builder.toString();
     }
 
-    public Identifier getName() {
+    public ResourceLocation getName() {
         return this.name;
     }
 
     public void delete() {
-    	GlStateManager.deleteShader(this.handle());
+        GL20.glDeleteShader(this.handle());
 
         this.invalidateHandle();
     }

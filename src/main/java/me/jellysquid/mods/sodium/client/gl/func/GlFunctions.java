@@ -1,7 +1,7 @@
 package me.jellysquid.mods.sodium.client.gl.func;
 
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl3.opengl.GL;
+import org.lwjgl3.opengl.GLCapabilities;
 
 public class GlFunctions {
     private static final GLCapabilities capabilities = GL.getCapabilities();

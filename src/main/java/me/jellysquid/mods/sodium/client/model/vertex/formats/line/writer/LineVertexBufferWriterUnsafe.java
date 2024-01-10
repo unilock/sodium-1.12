@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.model.vertex.formats.line.writer;
 
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.system.MemoryUtil;
 
 import me.jellysquid.mods.sodium.client.model.vertex.VanillaVertexTypes;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;

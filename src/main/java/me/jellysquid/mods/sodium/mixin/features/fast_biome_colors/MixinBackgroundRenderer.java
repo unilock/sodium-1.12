@@ -1,4 +1,5 @@
-package me.jellysquid.mods.sodium.mixin.features.fast_biome_colors;
+// TODO
+/*package me.jellysquid.mods.sodium.mixin.features.fast_biome_colors;
 
 import me.jellysquid.mods.sodium.client.util.color.FastCubicSampler;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -21,4 +22,4 @@ public class MixinBackgroundRenderer {
                 (x, y, z) -> world.getBiomeAccess().getBiomeForNoiseGen(x, y, z).getFogColor(),
                 (v) -> world.getSkyProperties().adjustFogColor(v, u));
     }
-}
+}*/

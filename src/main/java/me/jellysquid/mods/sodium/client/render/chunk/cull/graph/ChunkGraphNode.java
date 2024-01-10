@@ -3,9 +3,9 @@ package me.jellysquid.mods.sodium.client.render.chunk.cull.graph;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
-import net.minecraft.client.render.chunk.ChunkOcclusionData;
+import net.minecraft.client.renderer.chunk.SetVisibility;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 public class ChunkGraphNode {
     private static final long DEFAULT_VISIBILITY_DATA = calculateVisibilityData(ChunkRenderData.EMPTY.getOcclusionData());
@@ -30,7 +30,7 @@ public class ChunkGraphNode {
         this.visibilityData = DEFAULT_VISIBILITY_DATA;
     }
 
-    public ChunkGraphNode getConnectedNode(Direction dir) {
+    public ChunkGraphNode getConnectedNode(EnumFacing dir) {
         return this.nodes[dir.ordinal()];
     }
 
@@ -54,20 +54,20 @@ public class ChunkGraphNode {
         return this.chunkZ;
     }
 
-    public void setAdjacentNode(Direction dir, ChunkGraphNode node) {
+    public void setAdjacentNode(EnumFacing dir, ChunkGraphNode node) {
         this.nodes[dir.ordinal()] = node;
     }
 
-    public void setOcclusionData(ChunkOcclusionData occlusionData) {
+    public void setOcclusionData(SetVisibility occlusionData) {
         this.visibilityData = calculateVisibilityData(occlusionData);
     }
 
-    private static long calculateVisibilityData(ChunkOcclusionData occlusionData) {
+    private static long calculateVisibilityData(SetVisibility occlusionData) {
         long visibilityData = 0;
 
-        for (Direction from : DirectionUtil.ALL_DIRECTIONS) {
-            for (Direction to : DirectionUtil.ALL_DIRECTIONS) {
-                if (occlusionData == null || occlusionData.isVisibleThrough(from, to)) {
+        for (EnumFacing from : DirectionUtil.ALL_DIRECTIONS) {
+            for (EnumFacing to : DirectionUtil.ALL_DIRECTIONS) {
+                if (occlusionData == null || occlusionData.isVisible(from, to)) {
                     visibilityData |= (1L << ((from.ordinal() << 3) + to.ordinal()));
                 }
             }
@@ -91,7 +91,7 @@ public class ChunkGraphNode {
         return retVal;
     }
 
-    public void updateCullingState(Direction flow, short parent) {
+    public void updateCullingState(EnumFacing flow, short parent) {
         int inbound = flow.ordinal();
         this.cullingState |= (visibilityData >> (inbound<<3)) & 0xFF;
         this.cullingState &= ~(1 << (inbound + 8));

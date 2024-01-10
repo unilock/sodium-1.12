@@ -2,13 +2,11 @@ package me.jellysquid.mods.sodium.client.render.chunk.compile;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap;
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
-import me.jellysquid.mods.sodium.client.compat.forge.ForgeBlockRenderer;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderBackend;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderContainer;
-import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPassManager;
 import me.jellysquid.mods.sodium.client.render.chunk.tasks.ChunkRenderBuildTask;
 import me.jellysquid.mods.sodium.client.render.chunk.tasks.ChunkRenderEmptyBuildTask;
@@ -20,10 +18,9 @@ import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
 import me.jellysquid.mods.sodium.client.world.cloned.ClonedChunkSectionCache;
 import me.jellysquid.mods.sodium.common.util.collections.DequeDrain;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.math.Vector3d;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.crash.CrashException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -89,7 +86,7 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
             throw new IllegalStateException("Threads are still alive while in the STOPPED state");
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getMinecraft();
 
         for (int i = 0; i < this.limitThreads; i++) {
             ChunkBuildBuffers buffers = new ChunkBuildBuffers(this.vertexType, this.renderPassManager);
@@ -200,9 +197,9 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
             // If there is any exception from the build failure queue, throw it
             Throwable ex = errorIterator.next();
 
-            if (ex instanceof CrashException) {
+            if (ex instanceof ReportedException) {
                 // Propagate CrashExceptions directly to provide extra information
-                throw (CrashException)ex;
+                throw (ReportedException) ex;
             } else {
                 throw new RuntimeException("Chunk build failed", ex);
             }
@@ -253,7 +250,7 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
      * @param world The world instance
      * @param renderPassManager The render pass manager used for the world
      */
-    public void init(ClientWorld world, BlockRenderPassManager renderPassManager) {
+    public void init(WorldClient world, BlockRenderPassManager renderPassManager) {
         if (world == null) {
             throw new NullPointerException("World is null");
         }
@@ -263,8 +260,6 @@ public class ChunkBuilder<T extends ChunkGraphicsState> {
         this.world = world;
         this.renderPassManager = renderPassManager;
         this.sectionCache = new ClonedChunkSectionCache(this.world);
-
-        ForgeBlockRenderer.init();
 
         this.startWorkers();
     }

@@ -16,10 +16,10 @@ package me.jellysquid.mods.sodium.client.gl.shader;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl3.PointerBuffer;
+import org.lwjgl3.opengl.GL20C;
+import org.lwjgl3.system.MemoryStack;
+import org.lwjgl3.system.MemoryUtil;
 
 /**
  * Contains a workaround for a crash in nglShaderSource on some AMD drivers. Copied from the following Canvas commit:
@@ -45,7 +45,7 @@ class ShaderWorkarounds {
 			pointers.put(sourceBuffer);
 
 			GL20C.nglShaderSource(glId, 1, pointers.address0(), 0);
-			org.lwjgl.system.APIUtil.apiArrayFree(pointers.address0(), 1);
+			org.lwjgl3.system.APIUtil.apiArrayFree(pointers.address0(), 1);
 		} finally {
 			stack.setPointer(stackPointer);
 		}

@@ -1,8 +1,8 @@
 package me.jellysquid.mods.sodium.client.gl.func;
 
-import org.lwjgl.opengl.ARBCopyBuffer;
-import org.lwjgl.opengl.GL31C;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl3.opengl.ARBCopyBuffer;
+import org.lwjgl3.opengl.GL31C;
+import org.lwjgl3.opengl.GLCapabilities;
 
 /**
  * Requires OpenGL 3.1+ or the ARB_copy_buffer extension.

@@ -3,9 +3,9 @@ package me.jellysquid.mods.sodium.mixin;
 import me.jellysquid.mods.sodium.common.config.Option;
 import me.jellysquid.mods.sodium.common.config.SodiumConfig;
 
+import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.embeddedt.embeddium.config.ConfigMigrator;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -16,18 +16,18 @@ import java.util.Set;
 public class SodiumMixinPlugin implements IMixinConfigPlugin {
     private static final String MIXIN_PACKAGE_ROOT = "me.jellysquid.mods.sodium.mixin.";
 
-    private final Logger logger = LogManager.getLogger("Embeddium");
+    private final Logger logger = LogManager.getLogger("Sodium");
     private SodiumConfig config;
 
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            this.config = SodiumConfig.load(ConfigMigrator.handleConfigMigration("embeddium-mixins.properties").toFile());
+            this.config = SodiumConfig.load(Minecraft.getMinecraft().gameDir.toPath().resolve("config").resolve("sodium-mixins.properties").toFile());
         } catch (Exception e) {
-            throw new RuntimeException("Could not load configuration file for Embeddium", e);
+            throw new RuntimeException("Could not load configuration file for Sodium", e);
         }
 
-        this.logger.info("Loaded configuration file for Embeddium: {} options available, {} override(s) found",
+        this.logger.info("Loaded configuration file for Sodium: {} options available, {} override(s) found",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
     }
 

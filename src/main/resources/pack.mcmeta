@@ -1,7 +1,6 @@
 {
     "pack": {
-        "description": "Embeddium resources",
-        "pack_format": 5,
-        "_comment": "Language files & shaders for Embeddium"
+        "description": "mod_id resources",
+        "pack_format": 3
     }
 }

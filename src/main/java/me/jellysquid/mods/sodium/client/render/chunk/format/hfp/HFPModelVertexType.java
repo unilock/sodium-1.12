@@ -7,7 +7,7 @@ import me.jellysquid.mods.sodium.client.model.vertex.type.BlittableVertexType;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkMeshAttribute;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.renderer.BufferBuilder;
 
 /**
  * Uses half-precision floating point numbers to represent position coordinates and normalized unsigned shorts for
@@ -28,7 +28,7 @@ public class HFPModelVertexType implements ChunkVertexType {
     public static final float TEXTURE_SCALE = (1.0f / 32768.0f);
 
     @Override
-    public ModelVertexSink createFallbackWriter(VertexConsumer consumer) {
+    public ModelVertexSink createFallbackWriter(BufferBuilder consumer) {
         throw new UnsupportedOperationException();
     }
 
