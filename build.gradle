@@ -118,11 +118,9 @@ jar {
                 'Specification-Vendor': mod_authors,
                 'Specification-Version': '1', // We are version 1 of ourselves
                 'FMLCorePluginContainsFMLMod': true,
-                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'FMLCorePlugin': '',
+                'FMLCorePlugin': 'me.jellysquid.mods.sodium.client.SodiumMixinTweaker',
                 'ForceLoadAsMod': true,
                 'FMLAT': 'sodium_at.cfg',
-                'MixinConfigs': 'sodium.mixins.json',
                 'Implementation-Title': project.name,
                 'Implementation-Version': mod_version,
                 'Implementation-Vendor': mod_authors,
