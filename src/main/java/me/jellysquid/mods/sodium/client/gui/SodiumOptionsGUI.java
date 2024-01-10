@@ -86,7 +86,7 @@ public class SodiumOptionsGUI extends GuiScreen {
 
         this.undoButton = new FlatButtonWidget(new Dim2i(this.width - 211, this.height - 26, 65, 20), new TextComponentTranslation("sodium.options.buttons.undo").getFormattedText(), this::undoChanges);
         this.applyButton = new FlatButtonWidget(new Dim2i(this.width - 142, this.height - 26, 65, 20), new TextComponentTranslation("sodium.options.buttons.apply").getFormattedText(), this::applyChanges);
-        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 26, 65, 20), new TextComponentTranslation("gui.done").getFormattedText(), this::onGuiClosed);
+        this.closeButton = new FlatButtonWidget(new Dim2i(this.width - 73, this.height - 26, 65, 20), new TextComponentTranslation("gui.done").getFormattedText(), this::onClose);
         this.donateButton = new FlatButtonWidget(new Dim2i(this.width - 128, 6, 100, 20), new TextComponentTranslation("sodium.options.buttons.donate").getFormattedText(), this::openDonationPage);
         this.hideDonateButton = new FlatButtonWidget(new Dim2i(this.width - 26, 6, 20, 20), "x", this::hideDonationButton);
 
@@ -291,7 +291,7 @@ public class SodiumOptionsGUI extends GuiScreen {
         if(keyCode == Keyboard.KEY_ESCAPE && !shouldCloseOnEsc()) {
             return;
         } else if (keyCode == Keyboard.KEY_ESCAPE) {
-            onGuiClosed();
+            onClose();
             return;
         }
 
@@ -304,8 +304,8 @@ public class SodiumOptionsGUI extends GuiScreen {
         return !this.hasPendingChanges;
     }
 
-    @Override
-    public void onGuiClosed() {
+    // We can't override onGuiClosed due to StackOverflow
+    public void onClose() {
         this.mc.displayGuiScreen(this.prevScreen);
         super.onGuiClosed();
     }
