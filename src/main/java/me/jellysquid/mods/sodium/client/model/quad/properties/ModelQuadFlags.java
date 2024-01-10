@@ -44,7 +44,8 @@ public class ModelQuadFlags {
         float maxY = -32.0F;
         float maxZ = -32.0F;
 
-        int numVertices = Math.min(4, bakedQuad.getVertexData().length / 8);
+        // TODO
+        int numVertices = 4/*Math.min(4, bakedQuad.getVertexData().length / 8)*/;
         for (int i = 0; i < numVertices; ++i) {
             float x = quad.getX(i);
             float y = quad.getY(i);
