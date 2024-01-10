@@ -17,6 +17,8 @@ public class MixinGameRenderer {
 
     @Inject(method = "resetProjectionMatrix", at = @At("HEAD"))
     public void captureProjectionMatrix(CallbackInfo ci) {
-        GameRendererContext.captureProjectionMatrix(projectionMatrix);
+        if(projectionMatrix != null) {
+            GameRendererContext.captureProjectionMatrix(projectionMatrix);
+        }
     }
 }
