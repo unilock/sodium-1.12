@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public class MixinDrawableHelper {
     @Inject(method = "drawTexturedModalRect(IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;II)V", at = @At("HEAD"))
-    private static void onHeadDrawSprite(int x, int y, TextureAtlasSprite sprite, int width, int height, CallbackInfo ci) {
+    public void onHeadDrawSprite(int x, int y, TextureAtlasSprite sprite, int width, int height, CallbackInfo ci) {
         SpriteUtil.markSpriteActive(sprite);
     }
 }
