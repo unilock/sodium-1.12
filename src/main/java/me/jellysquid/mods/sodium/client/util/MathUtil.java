@@ -25,4 +25,8 @@ public class MathUtil {
     private static long cantor(long a, long b) {
         return (a + b + 1) * (a + b) / 2 + b;
     }
+
+    public static double lerp(double delta, double start, double end) {
+        return start + delta * (end - start);
+    }
 }
