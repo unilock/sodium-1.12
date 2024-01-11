@@ -305,7 +305,7 @@ public class WorldSlice implements IBlockAccess {
         ClonedChunkSection section = this.sections[getLocalChunkIndex(x2, z2)];
 
         if (section != null) {
-            return section.getBiomeForNoiseGen(pos.getX(), pos.getZ());
+            return section.getBiomeForNoiseGen(pos.getX() & 15, pos.getZ() & 15);
         }
 
         return this.world.getBiomeForCoordsBody(pos);
