@@ -21,20 +21,16 @@ import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListenerManager;
-import me.jellysquid.mods.sodium.common.util.CameraUtil;
 import me.jellysquid.mods.sodium.common.util.ListUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -195,34 +191,33 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         Profiler profiler = this.client.profiler;
         profiler.startSection("camera_setup");
 
-        EntityPlayerSP player = this.client.player;
+        Entity viewEntity = this.client.getRenderViewEntity();
 
-        if (player == null) {
-            throw new IllegalStateException("Client instance has no active player entity");
+        if (viewEntity == null) {
+            throw new IllegalStateException("Client instance has no active render entity");
         }
 
-        Vec3d pos = CameraUtil.getCameraPosition(ticks);
+        double d3 = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * ticks;
+        double d4 = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * ticks;
+        double d5 = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * ticks;
 
-        this.chunkRenderManager.setCameraPosition(pos.x, pos.y, pos.z);
-
-        // TODO idk if correct
-        float pitch = this.client.getRenderViewEntity().rotationPitch;
-        float yaw = this.client.getRenderViewEntity().rotationYaw;
+        this.chunkRenderManager.setCameraPosition(d3, d4, d5);
 
         float fogDistance = FogHelper.getFogCutoff();
 
-        boolean dirty = pos.x != this.lastCameraX || pos.y != this.lastCameraY || pos.z != this.lastCameraZ ||
-                pitch != this.lastCameraPitch || yaw != this.lastCameraYaw || fogDistance != this.lastFogDistance;
+        boolean dirty = viewEntity.posX != this.lastCameraX || viewEntity.posY != this.lastCameraY ||
+                viewEntity.posZ != this.lastCameraZ || (double) viewEntity.rotationPitch != this.lastCameraPitch |
+                (double) viewEntity.rotationYaw != this.lastCameraYaw;
 
         if (dirty) {
             this.chunkRenderManager.markDirty();
         }
 
-        this.lastCameraX = pos.x;
-        this.lastCameraY = pos.y;
-        this.lastCameraZ = pos.z;
-        this.lastCameraPitch = pitch;
-        this.lastCameraYaw = yaw;
+        this.lastCameraX = viewEntity.posX;
+        this.lastCameraY = viewEntity.posY;
+        this.lastCameraZ = viewEntity.posZ;
+        this.lastCameraPitch = viewEntity.rotationPitch;
+        this.lastCameraYaw = viewEntity.rotationYaw;
         this.lastFogDistance = fogDistance;
 
         profiler.endStartSection("chunk_update");
