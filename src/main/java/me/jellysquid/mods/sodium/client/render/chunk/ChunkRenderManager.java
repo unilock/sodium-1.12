@@ -138,11 +138,10 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     private void setup(float ticks) {
-        Vec3d cameraPos = CameraUtil.getCameraPosition(ticks);
-
-        this.cameraX = (float) cameraPos.x;
-        this.cameraY = (float) cameraPos.y;
-        this.cameraZ = (float) cameraPos.z;
+        Vec3d pos = this.builder.getCameraPosition();
+        this.cameraX = (float) pos.x;
+        this.cameraY = (float) pos.y;
+        this.cameraZ = (float) pos.z;
 
         this.useFogCulling = false;
         this.alwaysDeferChunkUpdates = SodiumClientMod.options().performance.alwaysDeferChunkUpdates;

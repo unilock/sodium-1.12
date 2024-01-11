@@ -104,8 +104,12 @@ public abstract class MixinWorldRenderer {
 
         this.mc.entityRenderer.enableLightmap();
 
+        double d3 = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * partialTicks;
+        double d4 = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * partialTicks;
+        double d5 = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * partialTicks;
+
         try {
-            this.renderer.drawChunkLayer(blockLayerIn, new MatrixStack(), entityIn.posX, entityIn.posY, entityIn.posZ);
+            this.renderer.drawChunkLayer(blockLayerIn, new MatrixStack(), d3, d4, d5);
         } finally {
             RenderDevice.exitManagedCode();
         }
