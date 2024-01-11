@@ -125,7 +125,7 @@ public abstract class MixinWorldRenderer {
 
         boolean hasForcedFrustum = false;
         try {
-            this.renderer.updateChunks((Frustum) camera, hasForcedFrustum, frame, spectator);
+            this.renderer.updateChunks((Frustum) camera, (float)tick, hasForcedFrustum, frame, spectator);
         } finally {
             RenderDevice.exitManagedCode();
         }
