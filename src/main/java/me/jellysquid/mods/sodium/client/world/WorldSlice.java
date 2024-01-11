@@ -299,11 +299,9 @@ public class WorldSlice implements IBlockAccess {
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        int x2 = (pos.getX() >> 2) - (this.baseX >> 4);
-        int z2 = (pos.getZ() >> 2) - (this.baseZ >> 4);
+        int x2 = (pos.getX() - this.baseX) >> 4;
+        int z2 = (pos.getZ() - this.baseZ) >> 4;
 
-        // Coordinates are in biome space!
-        // [VanillaCopy] WorldView#getBiomeForNoiseGen(int, int, int)
         ClonedChunkSection section = this.sections[getLocalChunkIndex(x2, z2)];
 
         if (section != null) {
