@@ -47,6 +47,7 @@ jar {
         attributes (
                 "FMLCorePluginContainsFMLMod": true,
                 "ForceLoadAsMod": true,
+                "FMLAT": "sodium_at.cfg",
                 "MixinConfigs": "sodium.mixins.json",
                 "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         )
