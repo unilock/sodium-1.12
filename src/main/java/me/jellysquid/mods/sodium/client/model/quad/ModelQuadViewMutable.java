@@ -38,11 +38,6 @@ public interface ModelQuadViewMutable extends ModelQuadView {
     void setTexV(int idx, float v);
 
     /**
-     * Sets the light map texture coordinate of the vertex at index {@param idx} to the value {@param light}
-     */
-    void setLight(int idx, int light);
-
-    /**
      * Sets the integer-encoded normal vector of the vertex at index {@param idx} to the value {@param light}
      */
     void setNormal(int idx, int norm);

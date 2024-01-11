@@ -82,11 +82,6 @@ public class MixinBakedQuad implements ModelQuadView {
     }
 
     @Override
-    public int getLight(int idx) {
-        return this.vertexData[vertexOffset(idx) + LIGHT_INDEX];
-    }
-
-    @Override
     public int getNormal(int idx) {
         return this.vertexData[vertexOffset(idx) + NORMAL_INDEX];
     }
