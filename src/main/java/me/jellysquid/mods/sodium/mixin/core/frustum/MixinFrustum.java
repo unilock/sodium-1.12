@@ -15,19 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinFrustum implements FrustumExtended {
     @Shadow public abstract boolean isBoxInFrustum(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
 
-    private float xF, yF, zF;
-
-    @Inject(method = "setPosition", at = @At("HEAD"))
-    private void prePositionUpdate(double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
-        this.xF = (float) cameraX;
-        this.yF = (float) cameraY;
-        this.zF = (float) cameraZ;
-    }
-
     @Override
     public boolean fastAabbTest(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-        return this.isBoxInFrustum(minX - this.xF, minY - this.yF, minZ - this.zF,
-                maxX - this.xF, maxY - this.yF, maxZ - this.zF);
+        return this.isBoxInFrustum(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     /**
