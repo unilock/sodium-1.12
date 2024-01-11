@@ -32,7 +32,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
-import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
 
 /**
  * Rebuilds all the meshes of a chunk for each given render pass with non-occluded blocks. The result is then uploaded
@@ -42,6 +41,7 @@ import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
  * array allocations, they are pooled to ensure that the garbage collector doesn't become overloaded.
  */
 public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkRenderBuildTask<T> {
+    private static final BlockRenderLayer[] LAYERS = BlockRenderLayer.values();
     private final ChunkRenderContainer<T> render;
         
     private final BlockPos offset;
@@ -107,11 +107,15 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                         buffers.setRenderOffset(pos.getX() - renderOffset.getX(), pos.getY() - renderOffset.getY(), pos.getZ() - renderOffset.getZ());
 
                         if (blockState.getRenderType() == EnumBlockRenderType.MODEL) {
-                            for (BlockRenderLayer layer : EmbeddiumRenderLayerCache.forState(blockState)) {
-                                ForgeHooksClient.setRenderLayer(layer);
+                            IBakedModel model = cache.getBlockModels()
+                                    .getModelForState(blockState);
 
-                                IBakedModel model = cache.getBlockModels()
-                                        .getModelForState(blockState);
+                            for (BlockRenderLayer layer : LAYERS) {
+                                if(!block.canRenderInLayer(blockState, layer)) {
+                                    continue;
+                                }
+
+                                ForgeHooksClient.setRenderLayer(layer);
 
                                 final long seed = MathUtil.hashPos(pos);
 
@@ -120,11 +124,11 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                 }
 
                             }
-                        }
-
-                        if (blockState.getRenderType() == EnumBlockRenderType.LIQUID) {
-                            for (BlockRenderLayer layer : EmbeddiumRenderLayerCache.forState(blockState)) {
-                                ForgeHooksClient.setRenderLayer(layer);
+                        } else if (blockState.getRenderType() == EnumBlockRenderType.LIQUID) {
+                            for (BlockRenderLayer layer : LAYERS) {
+                                if(!block.canRenderInLayer(blockState, layer)) {
+                                    continue;
+                                }
 
                                 if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
                                     bounds.addBlock(relX, relY, relZ);

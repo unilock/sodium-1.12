@@ -27,14 +27,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -42,7 +40,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraftforge.client.MinecraftForgeClient;
-import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
 
 import java.util.Map;
 import java.util.Set;
@@ -280,9 +277,6 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         }
 
         this.globalBlockEntities.clear();
-
-        // Failsafe in case the mixin that invalidates it on calls to RenderLayers.setRenderLayer does not fire
-        EmbeddiumRenderLayerCache.invalidate();
 
         RenderDevice device = RenderDevice.INSTANCE;
 
