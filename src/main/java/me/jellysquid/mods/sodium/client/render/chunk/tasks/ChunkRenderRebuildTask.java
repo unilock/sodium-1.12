@@ -29,6 +29,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
@@ -102,13 +103,22 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                             continue;
                         }
 
-                        // TODO: commit this separately
+                        EnumBlockRenderType renderType = blockState.getRenderType();
+
                         pos.setPos(baseX + relX, baseY + relY, baseZ + relZ);
                         buffers.setRenderOffset(pos.getX() - renderOffset.getX(), pos.getY() - renderOffset.getY(), pos.getZ() - renderOffset.getZ());
 
-                        if (blockState.getRenderType() == EnumBlockRenderType.MODEL) {
+                        if(renderType != EnumBlockRenderType.INVISIBLE) {
+                            if (slice.getWorldType() != WorldType.DEBUG_ALL_BLOCK_STATES) {
+                                blockState = blockState.getActualState(slice, pos);
+                            }
+                        }
+
+                        if (renderType == EnumBlockRenderType.MODEL) {
                             IBakedModel model = cache.getBlockModels()
                                     .getModelForState(blockState);
+
+                            blockState = blockState.getBlock().getExtendedState(blockState, slice, pos);
 
                             for (BlockRenderLayer layer : LAYERS) {
                                 if(!block.canRenderInLayer(blockState, layer)) {
@@ -124,7 +134,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                 }
 
                             }
-                        } else if (blockState.getRenderType() == EnumBlockRenderType.LIQUID) {
+                        } else if (renderType == EnumBlockRenderType.LIQUID) {
                             for (BlockRenderLayer layer : LAYERS) {
                                 if(!block.canRenderInLayer(blockState, layer)) {
                                     continue;
