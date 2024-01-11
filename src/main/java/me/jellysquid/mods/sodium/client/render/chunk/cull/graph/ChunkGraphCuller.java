@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -38,8 +39,8 @@ public class ChunkGraphCuller implements ChunkCuller {
     }
 
     @Override
-    public IntArrayList computeVisible( FrustumExtended frustum, int frame, boolean spectator) {
-        this.initSearch(frustum, frame, spectator);
+    public IntArrayList computeVisible(Vec3d cameraPos, FrustumExtended frustum, int frame, boolean spectator) {
+        this.initSearch(cameraPos, frustum, frame, spectator);
 
         ChunkGraphIterationQueue queue = this.visible;
 
@@ -70,14 +71,14 @@ public class ChunkGraphCuller implements ChunkCuller {
         return x <= this.renderDistance && z <= this.renderDistance;
     }
 
-    private void initSearch(FrustumExtended frustum, int frame, boolean spectator) {
+    private void initSearch(Vec3d cameraPos, FrustumExtended frustum, int frame, boolean spectator) {
         this.activeFrame = frame;
         this.frustum = frustum;
         this.useOcclusionCulling = Minecraft.getMinecraft().renderChunksMany;
 
         this.visible.clear();
 
-        BlockPos origin = new BlockPos(ActiveRenderInfo.getCameraPosition());
+        BlockPos origin = new BlockPos(cameraPos.x, cameraPos.y, cameraPos.z);
 
         int chunkX = origin.getX() >> 4;
         int chunkY = origin.getY() >> 4;

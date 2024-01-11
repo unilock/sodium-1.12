@@ -1,8 +1,8 @@
 package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 
-import org.lwjgl3.system.MemoryUtil;
-
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
+import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
+import org.lwjgl.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
@@ -32,7 +32,7 @@ public abstract class ChunkDrawParamsVector extends StructBuffer {
 
     protected void growBuffer() {
         this.capacity = this.capacity * 2;
-        this.buffer = MemoryUtil.memRealloc(this.buffer, this.capacity * this.stride);
+        this.buffer = CompatMemoryUtil.memReallocDirect(this.buffer, this.capacity * this.stride);
     }
 
     public static class UnsafeChunkDrawCallVector extends ChunkDrawParamsVector {
@@ -42,7 +42,7 @@ public abstract class ChunkDrawParamsVector extends StructBuffer {
         public UnsafeChunkDrawCallVector(int capacity) {
             super(capacity);
 
-            this.basePointer = MemoryUtil.memAddress(this.buffer);
+            this.basePointer = MemoryUtil.getAddress(this.buffer);
         }
 
         @Override
@@ -51,9 +51,9 @@ public abstract class ChunkDrawParamsVector extends StructBuffer {
                 this.growBuffer();
             }
 
-            MemoryUtil.memPutFloat(this.writePointer    , x);
-            MemoryUtil.memPutFloat(this.writePointer + 4, y);
-            MemoryUtil.memPutFloat(this.writePointer + 8, z);
+            CompatMemoryUtil.memPutFloat(this.writePointer    , x);
+            CompatMemoryUtil.memPutFloat(this.writePointer + 4, y);
+            CompatMemoryUtil.memPutFloat(this.writePointer + 8, z);
 
             this.writePointer += this.stride;
         }
@@ -64,7 +64,7 @@ public abstract class ChunkDrawParamsVector extends StructBuffer {
 
             long offset = this.writePointer - this.basePointer;
 
-            this.basePointer = MemoryUtil.memAddress(this.buffer);
+            this.basePointer = MemoryUtil.getAddress(this.buffer);
             this.writePointer = this.basePointer + offset;
         }
 

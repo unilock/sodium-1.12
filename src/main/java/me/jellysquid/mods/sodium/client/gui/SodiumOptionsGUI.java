@@ -283,7 +283,7 @@ public class SodiumOptionsGUI extends GuiScreen {
     }
 
     private void openDonationPage() {
-        me.jellysquid.mods.sodium.client.gui.utils.URLUtils.open("https://caffeinemc.net/donate");
+        URLUtils.open("https://caffeinemc.net/donate");
     }
 
     @Override

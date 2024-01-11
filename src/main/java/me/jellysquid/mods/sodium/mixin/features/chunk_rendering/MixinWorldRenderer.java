@@ -5,13 +5,17 @@ import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.DestroyBlockProgress;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -20,7 +24,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import repack.joml.Matrix4f;
 
+import java.nio.FloatBuffer;
 import java.util.Map;
 
 @Mixin(RenderGlobal.class)
@@ -34,6 +40,7 @@ public abstract class MixinWorldRenderer {
     private void renderBlockLayer(BlockRenderLayer blockLayerIn) {
     }
 
+    @Shadow @Final private Minecraft mc;
     private SodiumWorldRenderer renderer;
 
     @Redirect(method = "loadRenderers", at = @At(value = "FIELD", target = "Lnet/minecraft/client/settings/GameSettings;renderDistanceChunks:I", ordinal = 1))
@@ -89,14 +96,22 @@ public abstract class MixinWorldRenderer {
     public int renderBlockLayer(BlockRenderLayer blockLayerIn, double partialTicks, int pass, Entity entityIn) {
         RenderDevice.enterManagedCode();
 
+        RenderHelper.disableStandardItemLighting();
+
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.bindTexture(this.mc.getTextureMapBlocks().getGlTextureId());
+        GlStateManager.enableTexture2D();
+
+        this.mc.entityRenderer.enableLightmap();
+
         try {
             this.renderer.drawChunkLayer(blockLayerIn, new MatrixStack(), entityIn.posX, entityIn.posY, entityIn.posZ);
         } finally {
             RenderDevice.exitManagedCode();
         }
 
-        // TODO Check if correct
-        renderBlockLayer(blockLayerIn);
+        this.mc.entityRenderer.disableLightmap();
+
         return 1;
     }
 
@@ -110,7 +125,7 @@ public abstract class MixinWorldRenderer {
 
         boolean hasForcedFrustum = false;
         try {
-            this.renderer.updateChunks((Frustum) camera, hasForcedFrustum, frame, spectator);
+            this.renderer.updateChunks((Frustum) camera, (float)tick, hasForcedFrustum, frame, spectator);
         } finally {
             RenderDevice.exitManagedCode();
         }

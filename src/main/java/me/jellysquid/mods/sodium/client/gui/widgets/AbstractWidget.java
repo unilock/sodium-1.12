@@ -11,8 +11,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.text.ITextComponent;
-import org.lwjgl3.opengl.GL11;
-import org.lwjgl3.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
 
 import java.util.function.Consumer;
 
@@ -43,7 +42,7 @@ public abstract class AbstractWidget implements Drawable, Element {
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(GL20C.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
         consumer.accept(bufferBuilder);
 

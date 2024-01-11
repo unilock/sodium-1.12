@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.mixin.features.sky;
 
+import me.jellysquid.mods.sodium.common.util.CameraUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -40,7 +41,7 @@ public class MixinWorldRenderer {
      */
     @Inject(method = "renderSky(FI)V", at = @At("HEAD"), cancellable = true)
     private void preRenderSky(float tickDelta, int type, CallbackInfo callbackInfo) {
-        Vec3d cameraPosition = ActiveRenderInfo.getCameraPosition();
+        Vec3d cameraPosition = CameraUtil.getCameraPosition(tickDelta);
         Entity cameraEntity = mc.getRenderViewEntity();
 
         boolean hasBlindness = cameraEntity instanceof EntityLivingBase && ((EntityLivingBase) cameraEntity).getActivePotionEffect(MobEffects.BLINDNESS) != null;

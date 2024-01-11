@@ -29,6 +29,7 @@ import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.client.util.math.MathChunkPos;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
+import me.jellysquid.mods.sodium.common.util.CameraUtil;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import me.jellysquid.mods.sodium.common.util.IdTable;
 import me.jellysquid.mods.sodium.common.util.collections.FutureDequeDrain;
@@ -126,18 +127,18 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         this.useBlockFaceCulling = SodiumClientMod.options().advanced.useBlockFaceCulling;
     }
 
-    public void update(FrustumExtended frustum, int frame, boolean spectator) {
+    public void update(float ticks, FrustumExtended frustum, int frame, boolean spectator) {
         this.reset();
         this.unloadPending();
 
-        this.setup();
+        this.setup(ticks);
         this.iterateChunks(frustum, frame, spectator);
 
         this.dirty = false;
     }
 
-    private void setup() {
-        Vec3d cameraPos = ActiveRenderInfo.getCameraPosition();
+    private void setup(float ticks) {
+        Vec3d cameraPos = CameraUtil.getCameraPosition(ticks);
 
         this.cameraX = (float) cameraPos.x;
         this.cameraY = (float) cameraPos.y;
@@ -175,7 +176,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
             }
         }
 
-        IntList list = this.culler.computeVisible(frustum, frame, spectator);
+        IntList list = this.culler.computeVisible(new Vec3d(cameraX, cameraY, cameraZ), frustum, frame, spectator);
         IntIterator it = list.iterator();
 
         while (it.hasNext()) {

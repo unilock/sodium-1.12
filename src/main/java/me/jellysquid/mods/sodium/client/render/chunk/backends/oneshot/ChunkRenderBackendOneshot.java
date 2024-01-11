@@ -16,8 +16,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderListIterat
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkRenderShaderBackend;
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderBindingPoints;
-import org.lwjgl3.opengl.GL20C;
-import org.lwjgl3.system.MemoryStack;
+import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.util.Iterator;
@@ -88,15 +87,8 @@ public class ChunkRenderBackendOneshot extends ChunkRenderShaderBackend<ChunkOne
         float modelX = camera.getChunkModelOffset(state.getX(), camera.blockOriginX, camera.originX);
         float modelY = camera.getChunkModelOffset(state.getY(), camera.blockOriginY, camera.originY);
         float modelZ = camera.getChunkModelOffset(state.getZ(), camera.blockOriginZ, camera.originZ);
-        
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            FloatBuffer fb = stack.mallocFloat(4);
-            fb.put(0, modelX);
-            fb.put(1, modelY);
-            fb.put(2, modelZ);
 
-            GL20C.glVertexAttrib4fv(ChunkShaderBindingPoints.MODEL_OFFSET.getGenericAttributeIndex(), fb);
-        }
+        GL20.glVertexAttrib4f(ChunkShaderBindingPoints.MODEL_OFFSET.getGenericAttributeIndex(), modelX, modelY, modelZ, 0.0f);
     }
 
     protected void buildBatch(ChunkOneshotGraphicsState state, int visibleFaces) {

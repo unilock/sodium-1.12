@@ -1,4 +1,4 @@
-package me.jellysquid.mods.sodium.client.gui.utils;
+package me.jellysquid.mods.sodium.client.gui;
 
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import net.minecraft.util.Util;
@@ -8,11 +8,18 @@ import java.io.IOException;
 public class URLUtils {
 
     private static String[] getURLOpenCommand(String url) {
-        return switch (Util.getOSType()) {
-            case WINDOWS -> new String[]{"rundll32", "url.dll,FileProtocolHandler", url};
-            case OSX -> new String[]{"open", url};
-            case UNKNOWN, LINUX, SOLARIS -> new String[]{"xdg-open", url};
-        };
+        switch (Util.getOSType()) {
+            case WINDOWS:
+                return new String[]{"rundll32", "url.dll,FileProtocolHandler", url};
+            case OSX:
+                return new String[]{"open", url};
+            case UNKNOWN:
+            case LINUX:
+            case SOLARIS:
+                return new String[]{"xdg-open", url};
+            default:
+                throw new IllegalArgumentException("Unexpected OS Type");
+        }
     }
 
     public static void open(String url) {

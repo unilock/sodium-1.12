@@ -144,7 +144,7 @@ public class BlockRenderer {
             float u = src.getTexU(srcIndex);
             float v = src.getTexV(srcIndex);
 
-            int lm = ModelQuadUtil.mergeBakedLight(src.getLight(srcIndex), light.lm[srcIndex]);
+            int lm = light.lm[srcIndex];
 
             sink.writeQuad(x, y, z, color, u, v, lm);
         }

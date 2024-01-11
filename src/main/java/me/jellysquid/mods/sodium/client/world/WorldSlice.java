@@ -299,15 +299,13 @@ public class WorldSlice implements IBlockAccess {
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        int x2 = (pos.getX() >> 2) - (this.baseX >> 4);
-        int z2 = (pos.getZ() >> 2) - (this.baseZ >> 4);
+        int x2 = (pos.getX() - this.baseX) >> 4;
+        int z2 = (pos.getZ() - this.baseZ) >> 4;
 
-        // Coordinates are in biome space!
-        // [VanillaCopy] WorldView#getBiomeForNoiseGen(int, int, int)
         ClonedChunkSection section = this.sections[getLocalChunkIndex(x2, z2)];
 
         if (section != null) {
-            return section.getBiomeForNoiseGen(pos.getX(), pos.getZ());
+            return section.getBiomeForNoiseGen(pos.getX() & 15, pos.getZ() & 15);
         }
 
         return this.world.getBiomeForCoordsBody(pos);
@@ -357,13 +355,20 @@ public class WorldSlice implements IBlockAccess {
         if (!shaded) {
             return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
         }
-        return switch (direction) {
-            case DOWN -> !world.provider.hasSkyLight() ? 0.9f : 0.5f;
-            case UP -> !world.provider.hasSkyLight() ? 0.9f : 1.0f;
-            case NORTH, SOUTH -> 0.8f;
-            case WEST, EAST -> 0.6f;
-            case null -> 1.0f;
-        };
+        switch (direction) {
+            case DOWN:
+                return !world.provider.hasSkyLight() ? 0.9f : 0.5f;
+            case UP:
+                return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
+            case NORTH:
+            case SOUTH:
+                return 0.8f;
+            case WEST:
+            case EAST:
+                return 0.6f;
+            default:
+                return 1.0f;
+        }
     }
 
     // [VanillaCopy] PalettedContainer#toIndex

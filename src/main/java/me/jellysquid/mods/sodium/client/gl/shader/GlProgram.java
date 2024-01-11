@@ -5,8 +5,8 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl3.opengl.GL20;
-import org.lwjgl3.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 /**
  * An OpenGL shader program.
@@ -88,15 +88,15 @@ public abstract class GlProgram extends GlObject {
         public <P extends GlProgram> P build(ProgramFactory<P> factory) {
             GL20.glLinkProgram(this.program);
 
-            String log = GL20C.glGetProgramInfoLog(this.program);
+            String log = GL20.glGetProgramInfoLog(this.program, 32767);
 
             if (!log.isEmpty()) {
                 LOGGER.warn("Program link log for " + this.name + ": " + log);
             }
 
-            int result = GL20.glGetProgrami(this.program, GL20C.GL_LINK_STATUS);
+            int result = GL20.glGetProgrami(this.program, GL20.GL_LINK_STATUS);
 
-            if (result != GL20C.GL_TRUE) {
+            if (result != GL11.GL_TRUE) {
                 throw new RuntimeException("Shader program linking failed, see log for details");
             }
 
@@ -104,7 +104,7 @@ public abstract class GlProgram extends GlObject {
         }
 
         public Builder bindAttribute(String name, ShaderBindingPoint binding) {
-            GL20C.glBindAttribLocation(this.program, binding.getGenericAttributeIndex(), name);
+            GL20.glBindAttribLocation(this.program, binding.getGenericAttributeIndex(), name);
 
             return this;
         }

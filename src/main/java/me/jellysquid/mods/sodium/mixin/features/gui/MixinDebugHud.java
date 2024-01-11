@@ -10,8 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.apache.commons.lang3.Validate;
-import org.lwjgl3.opengl.GL11;
-import org.lwjgl3.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -91,7 +90,7 @@ public abstract class MixinDebugHud {
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
-        bufferBuilder.begin(GL20C.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
         for (int i = 0; i < list.size(); ++i) {
             String string = list.get(i);

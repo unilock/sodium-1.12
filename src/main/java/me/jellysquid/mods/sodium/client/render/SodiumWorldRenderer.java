@@ -21,6 +21,7 @@ import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListenerManager;
+import me.jellysquid.mods.sodium.common.util.CameraUtil;
 import me.jellysquid.mods.sodium.common.util.ListUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -179,7 +180,7 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
     /**
      * Called prior to any chunk rendering in order to update necessary state.
      */
-    public void updateChunks(Frustum frustum, boolean hasForcedFrustum, int frame, boolean spectator) {
+    public void updateChunks(Frustum frustum, float ticks, boolean hasForcedFrustum, int frame, boolean spectator) {
         this.frustum = frustum;
 
         this.useEntityCulling = SodiumClientMod.options().advanced.useEntityCulling;
@@ -197,7 +198,7 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
             throw new IllegalStateException("Client instance has no active player entity");
         }
 
-        Vec3d pos = ActiveRenderInfo.getCameraPosition();
+        Vec3d pos = CameraUtil.getCameraPosition(ticks);
 
         this.chunkRenderManager.setCameraPosition(pos.x, pos.y, pos.z);
 
@@ -228,7 +229,7 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         if (!hasForcedFrustum && this.chunkRenderManager.isDirty()) {
             profiler.endStartSection("chunk_graph_rebuild");
 
-            this.chunkRenderManager.update((FrustumExtended) frustum, frame, spectator);
+            this.chunkRenderManager.update(ticks, (FrustumExtended) frustum, frame, spectator);
         }
 
         profiler.endStartSection("visible_chunk_tick");

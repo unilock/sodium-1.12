@@ -22,11 +22,10 @@ public class ModelQuadUtil {
     public static final int POSITION_INDEX = 0,
             COLOR_INDEX = 3,
             TEXTURE_INDEX = 4,
-            LIGHT_INDEX = 6,
-            NORMAL_INDEX = 7;
+            NORMAL_INDEX = 6;
 
     // Size of vertex format in 4-byte integers
-    public static final int VERTEX_SIZE = 8;
+    public static final int VERTEX_SIZE = 7;
     public static final int VERTEX_SIZE_BYTES = VERTEX_SIZE * 4;
 
     // Cached array of normals for every facing to avoid expensive computation

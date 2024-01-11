@@ -45,11 +45,6 @@ public interface ModelQuadView {
     int getFlags();
 
     /**
-     * @return The lightmap texture coordinates for the vertex at index {@param idx}
-     */
-    int getLight(int idx);
-
-    /**
      * @return The integer-encoded normal vector for the vertex at index {@param idx}
      */
     int getNormal(int idx);
@@ -72,7 +67,6 @@ public interface ModelQuadView {
             buf.putInt(position + 12, this.getColor(i));
             buf.putFloat(position + 16, this.getTexU(i));
             buf.putFloat(position + 20, this.getTexV(i));
-            buf.putInt(position + 24, this.getLight(i));
 
             position += 28;
         }

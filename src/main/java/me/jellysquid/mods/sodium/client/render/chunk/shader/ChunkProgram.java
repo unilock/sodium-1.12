@@ -5,9 +5,7 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.render.GameRendererContext;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl3.opengl.GL20;
-import org.lwjgl3.opengl.GL20C;
-import org.lwjgl3.system.MemoryStack;
+import org.lwjgl.opengl.GL20;
 
 import java.util.function.Function;
 
@@ -40,16 +38,13 @@ public class ChunkProgram extends GlProgram {
 
     public void setup(MatrixStack matrixStack, float modelScale, float textureScale) {
         GL20.glUniform1i(this.uBlockTex, 0);
-        GL20.glUniform1i(this.uLightTex, 2);
+        GL20.glUniform1i(this.uLightTex, 1);
 
-        GL20C.glUniform3f(this.uModelScale, modelScale, modelScale, modelScale);
-        GL20C.glUniform2f(this.uTextureScale, textureScale, textureScale);
+        GL20.glUniform3f(this.uModelScale, modelScale, modelScale, modelScale);
+        GL20.glUniform2f(this.uTextureScale, textureScale, textureScale);
 
         this.fogShader.setup();
 
-        try (MemoryStack memoryStack = MemoryStack.stackPush()) {
-            GL20.glUniformMatrix4fv(this.uModelViewProjectionMatrix, false,
-                    GameRendererContext.getModelViewProjectionMatrix(matrixStack.peek(), memoryStack));
-        }
+        GL20.glUniformMatrix4(this.uModelViewProjectionMatrix, false, GameRendererContext.getModelViewProjectionMatrix(matrixStack.peek()));
     }
 }

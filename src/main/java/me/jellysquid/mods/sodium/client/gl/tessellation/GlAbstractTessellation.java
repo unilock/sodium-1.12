@@ -4,7 +4,7 @@ import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import me.jellysquid.mods.sodium.client.gl.buffer.GlBufferTarget;
 import me.jellysquid.mods.sodium.client.gl.device.CommandList;
 import me.jellysquid.mods.sodium.client.gl.func.GlFunctions;
-import org.lwjgl3.opengl.GL20;
+import org.lwjgl.opengl.GL20;
 
 public abstract class GlAbstractTessellation implements GlTessellation {
     protected final GlPrimitiveType primitiveType;

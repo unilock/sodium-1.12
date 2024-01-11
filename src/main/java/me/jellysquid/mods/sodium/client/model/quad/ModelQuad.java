@@ -46,11 +46,6 @@ public class ModelQuad implements ModelQuadViewMutable {
     }
 
     @Override
-    public void setLight(int idx, int light) {
-        this.data[vertexOffset(idx) + LIGHT_INDEX] = light;
-    }
-
-    @Override
     public void setNormal(int idx, int norm) {
         this.data[vertexOffset(idx) + NORMAL_INDEX] = norm;
     }
@@ -68,11 +63,6 @@ public class ModelQuad implements ModelQuadViewMutable {
     @Override
     public void setColorIndex(int index) {
         this.colorIdx = index;
-    }
-
-    @Override
-    public int getLight(int idx) {
-        return this.data[vertexOffset(idx) + LIGHT_INDEX];
     }
 
     @Override
