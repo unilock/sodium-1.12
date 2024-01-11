@@ -357,13 +357,20 @@ public class WorldSlice implements IBlockAccess {
         if (!shaded) {
             return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
         }
-        return switch (direction) {
-            case DOWN -> !world.provider.hasSkyLight() ? 0.9f : 0.5f;
-            case UP -> !world.provider.hasSkyLight() ? 0.9f : 1.0f;
-            case NORTH, SOUTH -> 0.8f;
-            case WEST, EAST -> 0.6f;
-            case null -> 1.0f;
-        };
+        switch (direction) {
+            case DOWN:
+                return !world.provider.hasSkyLight() ? 0.9f : 0.5f;
+            case UP:
+                return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
+            case NORTH:
+            case SOUTH:
+                return 0.8f;
+            case WEST:
+            case EAST:
+                return 0.6f;
+            default:
+                return 1.0f;
+        }
     }
 
     // [VanillaCopy] PalettedContainer#toIndex

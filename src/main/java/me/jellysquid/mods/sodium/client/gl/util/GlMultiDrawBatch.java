@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.gl.util;
 
-import org.lwjgl3.system.MemoryUtil;
+import org.lwjgl.BufferUtils;
 
 import java.nio.IntBuffer;
 
@@ -15,8 +15,8 @@ public class GlMultiDrawBatch {
     private boolean isBuilding;
 
     public GlMultiDrawBatch(int capacity) {
-        this.bufIndices = MemoryUtil.memAllocInt(capacity);
-        this.bufLen = MemoryUtil.memAllocInt(capacity);
+        this.bufIndices = BufferUtils.createIntBuffer(capacity);
+        this.bufLen = BufferUtils.createIntBuffer(capacity);
     }
 
     public IntBuffer getIndicesBuffer() {
@@ -57,7 +57,6 @@ public class GlMultiDrawBatch {
     }
 
     public void delete() {
-    	MemoryUtilHelper.memFree(this.bufIndices);
-        MemoryUtilHelper.memFree(this.bufLen);
+        // Nothing to free in LWJGL 2 because we use NIO direct buffers
     }
 }

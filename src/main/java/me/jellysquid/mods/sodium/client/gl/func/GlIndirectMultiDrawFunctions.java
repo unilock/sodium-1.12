@@ -1,14 +1,14 @@
 package me.jellysquid.mods.sodium.client.gl.func;
 
-import org.lwjgl3.opengl.ARBMultiDrawIndirect;
-import org.lwjgl3.opengl.GL43C;
-import org.lwjgl3.opengl.GLCapabilities;
+import org.lwjgl.opengl.ARBMultiDrawIndirect;
+import org.lwjgl.opengl.ContextCapabilities;
+import org.lwjgl.opengl.GL43;
 
 public enum GlIndirectMultiDrawFunctions {
     CORE {
         @Override
         public void glMultiDrawArraysIndirect(int mode, long indirect, int primcount, int stride) {
-            GL43C.glMultiDrawArraysIndirect(mode, indirect, primcount, stride);
+            GL43.glMultiDrawArraysIndirect(mode, indirect, primcount, stride);
         }
     },
     ARB {
@@ -24,7 +24,7 @@ public enum GlIndirectMultiDrawFunctions {
         }
     };
 
-    public static GlIndirectMultiDrawFunctions load(GLCapabilities capabilities) {
+    public static GlIndirectMultiDrawFunctions load(ContextCapabilities capabilities) {
         if (capabilities.OpenGL43) {
             return CORE;
         } else if (capabilities.GL_ARB_multi_draw_indirect && capabilities.GL_ARB_draw_indirect) {

@@ -1,12 +1,11 @@
 package me.jellysquid.mods.sodium.client.render.chunk.format.hfp;
 
-import org.lwjgl3.system.MemoryUtil;
-
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterUnsafe;
 import me.jellysquid.mods.sodium.client.render.chunk.format.DefaultModelVertexFormats;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexUtil;
+import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 
 public class HFPModelVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe implements ModelVertexSink {
     public HFPModelVertexBufferWriterUnsafe(VertexBufferView backingBuffer) {
@@ -29,13 +28,13 @@ public class HFPModelVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe i
     private void writeQuadInternal(short x, short y, short z, int color, short u, short v, int light) {
         long i = this.writePointer;
 
-        MemoryUtil.memPutShort(i, x);
-        MemoryUtil.memPutShort(i + 2, y);
-        MemoryUtil.memPutShort(i + 4, z);
-        MemoryUtil.memPutInt(i + 8, color);
-        MemoryUtil.memPutShort(i + 12, u);
-        MemoryUtil.memPutShort(i + 14, v);
-        MemoryUtil.memPutInt(i + 16, light);
+        CompatMemoryUtil.memPutShort(i, x);
+        CompatMemoryUtil.memPutShort(i + 2, y);
+        CompatMemoryUtil.memPutShort(i + 4, z);
+        CompatMemoryUtil.memPutInt(i + 8, color);
+        CompatMemoryUtil.memPutShort(i + 12, u);
+        CompatMemoryUtil.memPutShort(i + 14, v);
+        CompatMemoryUtil.memPutInt(i + 16, light);
 
         this.advance();
     }

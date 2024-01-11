@@ -1,8 +1,9 @@
 package me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw;
 
 import me.jellysquid.mods.sodium.client.SodiumClientMod;
+import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl3.system.MemoryUtil;
+import org.lwjgl.MemoryUtil;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -66,7 +67,7 @@ public abstract class ChunkDrawCallBatcher extends StructBuffer {
         public UnsafeChunkDrawCallBatcher(int capacity) {
             super(capacity);
 
-            this.basePointer = MemoryUtil.memAddress(this.buffer);
+            this.basePointer = MemoryUtil.getAddress(this.buffer);
         }
 
         @Override
@@ -82,10 +83,10 @@ public abstract class ChunkDrawCallBatcher extends StructBuffer {
                 throw new BufferUnderflowException();
             }
 
-            MemoryUtil.memPutInt(this.writePointer     , count);         // Vertex Count
-            MemoryUtil.memPutInt(this.writePointer +  4, instanceCount); // Instance Count
-            MemoryUtil.memPutInt(this.writePointer +  8, first);         // Vertex Start
-            MemoryUtil.memPutInt(this.writePointer + 12, baseInstance);  // Base Instance
+            CompatMemoryUtil.memPutInt(this.writePointer     , count);         // Vertex Count
+            CompatMemoryUtil.memPutInt(this.writePointer +  4, instanceCount); // Instance Count
+            CompatMemoryUtil.memPutInt(this.writePointer +  8, first);         // Vertex Start
+            CompatMemoryUtil.memPutInt(this.writePointer + 12, baseInstance);  // Base Instance
 
             this.writePointer += this.stride;
         }

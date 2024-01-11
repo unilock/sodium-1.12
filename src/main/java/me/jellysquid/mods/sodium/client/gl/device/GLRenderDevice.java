@@ -8,7 +8,7 @@ import me.jellysquid.mods.sodium.client.gl.buffer.GlMutableBuffer;
 import me.jellysquid.mods.sodium.client.gl.func.GlFunctions;
 import me.jellysquid.mods.sodium.client.gl.state.GlStateTracker;
 import me.jellysquid.mods.sodium.client.gl.tessellation.*;
-import org.lwjgl3.opengl.*;
+import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -72,7 +72,7 @@ public class GLRenderDevice implements RenderDevice {
         public void uploadData(GlMutableBuffer glBuffer, ByteBuffer byteBuffer) {
             this.bindBuffer(GlBufferTarget.ARRAY_BUFFER, glBuffer);
 
-            GL20.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), byteBuffer, glBuffer.getUsageHint().getId());
+            GL15.glBufferData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), byteBuffer, glBuffer.getUsageHint().getId());
 
             glBuffer.setSize(byteBuffer.limit());
         }
@@ -86,20 +86,20 @@ public class GLRenderDevice implements RenderDevice {
             this.bindBuffer(GlBufferTarget.COPY_READ_BUFFER, src);
             this.bindBuffer(GlBufferTarget.COPY_WRITE_BUFFER, dst);
 
-            GlFunctions.BUFFER_COPY.glCopyBufferSubData(GL31C.GL_COPY_READ_BUFFER, GL31C.GL_COPY_WRITE_BUFFER, readOffset, writeOffset, bytes);
+            GlFunctions.BUFFER_COPY.glCopyBufferSubData(GL31.GL_COPY_READ_BUFFER, GL31.GL_COPY_WRITE_BUFFER, readOffset, writeOffset, bytes);
         }
 
         @Override
         public void bindBuffer(GlBufferTarget target, GlBuffer buffer) {
             if (this.stateTracker.makeBufferActive(target, buffer)) {
-                GL20.glBindBuffer(target.getTargetParameter(), buffer.handle());
+                GL15.glBindBuffer(target.getTargetParameter(), buffer.handle());
             }
         }
 
         @Override
         public void unbindBuffer(GlBufferTarget target) {
             if (this.stateTracker.makeBufferActive(target, null)) {
-                GL20.glBindBuffer(target.getTargetParameter(), GlBuffer.NULL_BUFFER_ID);
+                GL15.glBindBuffer(target.getTargetParameter(), GlBuffer.NULL_BUFFER_ID);
             }
         }
 
@@ -119,7 +119,7 @@ public class GLRenderDevice implements RenderDevice {
         public void allocateBuffer(GlBufferTarget target, GlMutableBuffer buffer, long bufferSize) {
             this.bindBuffer(target, buffer);
 
-            GL20C.glBufferData(target.getTargetParameter(), bufferSize, buffer.getUsageHint().getId());
+            GL15.glBufferData(target.getTargetParameter(), bufferSize, buffer.getUsageHint().getId());
             buffer.setSize(bufferSize);
         }
 
@@ -128,7 +128,7 @@ public class GLRenderDevice implements RenderDevice {
             int handle = buffer.handle();
             buffer.invalidateHandle();
 
-            GL20.glDeleteBuffers(handle);
+            GL15.glDeleteBuffers(handle);
         }
 
         @Override
@@ -188,7 +188,7 @@ public class GLRenderDevice implements RenderDevice {
         @Override
         public void multiDrawArrays(IntBuffer first, IntBuffer count) {
             GlPrimitiveType primitiveType = GLRenderDevice.this.activeTessellation.getPrimitiveType();
-            GL20C.glMultiDrawArrays(primitiveType.getId(), first, count);
+            GL14.glMultiDrawArrays(primitiveType.getId(), first, count);
         }
 
         @Override

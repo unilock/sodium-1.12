@@ -33,7 +33,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderBindingPo
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
-import org.lwjgl3.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -397,7 +397,7 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
         }
 
         // Check to see if the GPU vendor is Intel
-        return Objects.equals(GlStateManager.glGetString(GL20C.GL_VENDOR), INTEL_VENDOR_NAME);
+        return Objects.equals(GlStateManager.glGetString(GL11.GL_VENDOR), INTEL_VENDOR_NAME);
     }
 
     /**
@@ -410,7 +410,7 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
             return false;
         }
 
-        String version = GlStateManager.glGetString(GL20C.GL_VERSION);
+        String version = GlStateManager.glGetString(GL11.GL_VERSION);
 
         // The returned version string may be null in the case of an error
         if (version == null) {

@@ -53,7 +53,7 @@ public class CyclingControl<T extends Enum<T>> implements Control<T> {
             } else if(value instanceof FormattedTextProvider) {
                 name = ((FormattedTextProvider)value).getLocalizedName();
             } else {
-                name = value instanceof NamedState namedState ? new TextComponentTranslation(namedState.getKey()) : new TextComponentString(value.name());
+                name = value instanceof NamedState ? new TextComponentTranslation(((NamedState)value).getKey()) : new TextComponentString(value.name());
             }
 
             this.names[i] = name;

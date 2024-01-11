@@ -5,8 +5,8 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl3.opengl.GL20;
-import org.lwjgl3.opengl.GL20C;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,15 +31,15 @@ public class GlShader extends GlObject {
         ShaderWorkarounds.safeShaderSource(handle, src);
         GL20.glCompileShader(handle);
 
-        String log = GL20C.glGetShaderInfoLog(handle);
+        String log = GL20.glGetShaderInfoLog(handle, 32767);
 
         if (!log.isEmpty()) {
             LOGGER.warn("Shader compilation log for " + this.name + ": " + log);
         }
 
-        int result = GL20.glGetShaderi(handle, GL20C.GL_COMPILE_STATUS);
+        int result = GL20.glGetShaderi(handle, GL20.GL_COMPILE_STATUS);
 
-        if (result != GL20C.GL_TRUE) {
+        if (result != GL11.GL_TRUE) {
             throw new RuntimeException("Shader compilation failed, see log for details");
         }
 

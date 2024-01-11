@@ -436,14 +436,20 @@ public class Math {
     }
 
     public static float fma(float a, float b, float c) {
+        /*
         if (Runtime.HAS_Math_fma)
             return java.lang.Math.fma(a, b, c);
+
+         */
         return a * b + c;
     }
 
     public static double fma(double a, double b, double c) {
+        /*
         if (Runtime.HAS_Math_fma)
             return java.lang.Math.fma(a, b, c);
+
+         */
         return a * b + c;
     }
 

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.chunk.format.sfp;
 
-import org.lwjgl3.system.MemoryUtil;
+import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferWriterUnsafe;
@@ -16,13 +16,13 @@ public class SFPModelVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe i
     public void writeQuad(float x, float y, float z, int color, float u, float v, int light) {
         long i = this.writePointer;
 
-        MemoryUtil.memPutFloat(i, x);
-        MemoryUtil.memPutFloat(i + 4, y);
-        MemoryUtil.memPutFloat(i + 8, z);
-        MemoryUtil.memPutInt(i + 12, color);
-        MemoryUtil.memPutFloat(i + 16, u);
-        MemoryUtil.memPutFloat(i + 20, v);
-        MemoryUtil.memPutInt(i + 24, encodeLightMapTexCoord(light));
+        CompatMemoryUtil.memPutFloat(i, x);
+        CompatMemoryUtil.memPutFloat(i + 4, y);
+        CompatMemoryUtil.memPutFloat(i + 8, z);
+        CompatMemoryUtil.memPutInt(i + 12, color);
+        CompatMemoryUtil.memPutFloat(i + 16, u);
+        CompatMemoryUtil.memPutFloat(i + 20, v);
+        CompatMemoryUtil.memPutInt(i + 24, encodeLightMapTexCoord(light));
 
         this.advance();
     }

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.sodium.client.model.vertex.formats.particle.writer;
 
-import org.lwjgl3.system.MemoryUtil;
+import me.jellysquid.mods.sodium.client.util.CompatMemoryUtil;
 
 import me.jellysquid.mods.sodium.client.model.vertex.VanillaVertexTypes;
 import me.jellysquid.mods.sodium.client.model.vertex.buffer.VertexBufferView;
@@ -16,13 +16,13 @@ public class ParticleVertexBufferWriterUnsafe extends VertexBufferWriterUnsafe i
     public void writeParticle(float x, float y, float z, float u, float v, int color, int light) {
         long i = this.writePointer;
 
-        MemoryUtil.memPutFloat(i, x);
-        MemoryUtil.memPutFloat(i + 4, y);
-        MemoryUtil.memPutFloat(i + 8, z);
-        MemoryUtil.memPutFloat(i + 12, u);
-        MemoryUtil.memPutFloat(i + 16, v);
-        MemoryUtil.memPutInt(i + 20, color);
-        MemoryUtil.memPutInt(i + 24, light);
+        CompatMemoryUtil.memPutFloat(i, x);
+        CompatMemoryUtil.memPutFloat(i + 4, y);
+        CompatMemoryUtil.memPutFloat(i + 8, z);
+        CompatMemoryUtil.memPutFloat(i + 12, u);
+        CompatMemoryUtil.memPutFloat(i + 16, v);
+        CompatMemoryUtil.memPutInt(i + 20, color);
+        CompatMemoryUtil.memPutInt(i + 24, light);
 
         this.advance();
     }
