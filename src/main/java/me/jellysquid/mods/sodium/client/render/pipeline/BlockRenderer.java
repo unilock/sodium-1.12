@@ -1,13 +1,5 @@
 package me.jellysquid.mods.sodium.client.render.pipeline;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.color.IBlockColor;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
 import me.jellysquid.mods.sodium.client.model.light.LightMode;
 import me.jellysquid.mods.sodium.client.model.light.LightPipeline;
 import me.jellysquid.mods.sodium.client.model.light.LightPipelineProvider;
@@ -19,14 +11,20 @@ import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadOrientati
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
-import me.jellysquid.mods.sodium.client.render.occlusion.BlockOcclusionCache;
-import me.jellysquid.mods.sodium.client.util.ModelQuadUtil;
 import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
 import me.jellysquid.mods.sodium.client.util.rand.XoRoShiRoRandom;
 import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.color.IBlockColor;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 
 import java.util.List;
 import java.util.Random;
@@ -35,7 +33,6 @@ public class BlockRenderer {
     private final Random random = new XoRoShiRoRandom();
 
     private final BlockColorsExtended blockColors;
-    private final BlockOcclusionCache occlusionCache;
 
     private final QuadLightData cachedQuadLightData = new QuadLightData();
 
@@ -50,7 +47,6 @@ public class BlockRenderer {
 
         this.lighters = lighters;
 
-        this.occlusionCache = new BlockOcclusionCache();
         this.useAmbientOcclusion = Minecraft.isAmbientOcclusionEnabled();
     }
 
@@ -72,7 +68,7 @@ public class BlockRenderer {
                 continue;
             }
 
-            if (!cull || this.occlusionCache.shouldDrawSide(state, world, pos, dir)) {
+            if (!cull || state.shouldSideBeRendered(world, pos, dir)) {
                 this.renderQuadList(world, state, pos, lighter, offset, buffers, sided, dir);
 
                 rendered = true;
