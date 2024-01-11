@@ -38,7 +38,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraftforge.client.MinecraftForgeClient;
-import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
 
 import java.util.Map;
 import java.util.Set;
@@ -275,9 +274,6 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         }
 
         this.globalBlockEntities.clear();
-
-        // Failsafe in case the mixin that invalidates it on calls to RenderLayers.setRenderLayer does not fire
-        EmbeddiumRenderLayerCache.invalidate();
 
         RenderDevice device = RenderDevice.INSTANCE;
 

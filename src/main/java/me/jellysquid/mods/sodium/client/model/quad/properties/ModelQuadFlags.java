@@ -36,6 +36,10 @@ public class ModelQuadFlags {
         ModelQuadView quad = (ModelQuadView) bakedQuad;
         EnumFacing face = bakedQuad.getFace();
 
+        if (face == null) {
+            return 0;
+        }
+
         float minX = 32.0F;
         float minY = 32.0F;
         float minZ = 32.0F;

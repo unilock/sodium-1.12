@@ -26,6 +26,12 @@ tasks.deobfuscateMergedJarToSrg.configure {accessTransformerFiles.from("src/main
 
 repositories {
     maven {	url "https://maven.cleanroommc.com" }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 dependencies {
@@ -40,6 +46,8 @@ dependencies {
     annotationProcessor (mixinBooter) {
         transitive = false
     }
+
+    implementation rfg.deobf("curse.maven:ae2-223794:2747063")
 }
 
 jar {
@@ -47,6 +55,7 @@ jar {
         attributes (
                 "FMLCorePluginContainsFMLMod": true,
                 "ForceLoadAsMod": true,
+                "FMLAT": "sodium_at.cfg",
                 "MixinConfigs": "sodium.mixins.json",
                 "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         )

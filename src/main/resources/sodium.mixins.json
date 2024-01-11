@@ -20,6 +20,7 @@
     "core.pipeline.MixinBakedQuad",
     "core.pipeline.MixinBufferBuilder",
     "core.pipeline.MixinVertexFormat",
+    "core.pipeline.MixinUnpackedBakedQuad",
     "features.block.MixinBlockModelRenderer",
     "features.block.MixinWorldRenderer",
     "features.buffer_builder.fast_advance.MixinVertexFormat",

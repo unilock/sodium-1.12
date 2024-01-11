@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client.gui.options.control;
 
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 
 public interface ControlValueFormatter {
@@ -18,7 +19,7 @@ public interface ControlValueFormatter {
             } else if (v == 100) {
                 return new TextComponentTranslation("options.gamma.max").getFormattedText();
             } else {
-                return new TextComponentTranslation(v + "%").getFormattedText();
+                return v + "%";
             }
         };
     }
