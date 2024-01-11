@@ -197,11 +197,11 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
             throw new IllegalStateException("Client instance has no active render entity");
         }
 
-        double d3 = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * ticks;
-        double d4 = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * ticks;
-        double d5 = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * ticks;
+        double x = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * ticks;
+        double y = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * ticks;
+        double z = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * ticks;
 
-        this.chunkRenderManager.setCameraPosition(d3, d4, d5);
+        this.chunkRenderManager.setCameraPosition(x, y + (double) viewEntity.getEyeHeight(), z);
 
         float fogDistance = FogHelper.getFogCutoff();
 
