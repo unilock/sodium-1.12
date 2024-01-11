@@ -23,6 +23,7 @@ import me.jellysquid.mods.sodium.client.world.ChunkStatusListener;
 import me.jellysquid.mods.sodium.client.world.ChunkStatusListenerManager;
 import me.jellysquid.mods.sodium.common.util.CameraUtil;
 import me.jellysquid.mods.sodium.common.util.ListUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -36,7 +37,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraftforge.client.MinecraftForgeClient;
 import org.embeddedt.embeddium.render.EmbeddiumRenderLayerCache;
@@ -320,21 +323,12 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         return frustum.isBoundingBoxInFrustum(entity.getRenderBoundingBox());
     }
 
-    private void renderTE(TileEntity tileEntity, int pass, float partialTicks, Map<Integer, DestroyBlockProgress> damagedBlocks) {
-        if(!tileEntity.shouldRenderInPass(pass) || !checkBEVisibility(tileEntity))
+    private void renderTE(TileEntity tileEntity, int pass, float partialTicks, int damageProgress) {
+        if((damageProgress < 0 && !tileEntity.shouldRenderInPass(pass)) || !checkBEVisibility(tileEntity))
             return;
 
         try {
-            DestroyBlockProgress catched = null;
-            for(DestroyBlockProgress destroyBlockProgress : damagedBlocks.values()) {
-                if(destroyBlockProgress.getPosition().equals(tileEntity.getPos())) {
-                    catched = destroyBlockProgress;
-                    break;
-                }
-            }
-            // TODO Check is 0 correct
-            int progress = catched == null ? 0 : catched.getPartialBlockDamage();
-            TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, progress);
+            TileEntityRendererDispatcher.instance.render(tileEntity, partialTicks, damageProgress);
         } catch(RuntimeException e) {
             if(tileEntity.isInvalid()) {
                 SodiumClientMod.logger().error("Suppressing crash from invalid tile entity", e);
@@ -344,15 +338,66 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         }
     }
 
+    private void preRenderDamagedBlocks() {
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.enableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
+        GlStateManager.doPolygonOffset(-1.0F, -10.0F);
+        GlStateManager.enablePolygonOffset();
+        GlStateManager.alphaFunc(516, 0.1F);
+        GlStateManager.enableAlpha();
+        GlStateManager.pushMatrix();
+    }
+
+    private void postRenderDamagedBlocks() {
+        GlStateManager.disableAlpha();
+        GlStateManager.doPolygonOffset(0.0F, 0.0F);
+        GlStateManager.disablePolygonOffset();
+        GlStateManager.enableAlpha();
+        GlStateManager.depthMask(true);
+        GlStateManager.popMatrix();
+    }
+
     public void renderTileEntities(Entity entity, ICamera camera, float partialTicks, Map<Integer, DestroyBlockProgress> damagedBlocks) {
         int pass = MinecraftForgeClient.getRenderPass();
+        TileEntityRendererDispatcher.instance.preDrawBatch();
         for (TileEntity tileEntity : this.chunkRenderManager.getVisibleBlockEntities()) {
-            renderTE(tileEntity, pass, partialTicks, damagedBlocks);
+            renderTE(tileEntity, pass, partialTicks, -1);
         }
 
         for (TileEntity tileEntity : this.globalBlockEntities) {
-            renderTE(tileEntity, pass, partialTicks, damagedBlocks);
+            renderTE(tileEntity, pass, partialTicks, -1);
         }
+
+        // TODO Damaged Block Renderer is still very broken
+        this.preRenderDamagedBlocks();
+        for (DestroyBlockProgress destroyProgress : damagedBlocks.values()) {
+            BlockPos pos = destroyProgress.getPosition();
+
+            if (this.world.getBlockState(pos).getBlock().hasTileEntity()) {
+                TileEntity tileEntity = this.world.getTileEntity(pos);
+
+                if (tileEntity instanceof TileEntityChest) {
+                    TileEntityChest chest = (TileEntityChest) tileEntity;
+
+                    if (chest.adjacentChestXNeg != null) {
+                        pos = pos.offset(EnumFacing.WEST);
+                        tileEntity = this.world.getTileEntity(pos);
+                    } else if (chest.adjacentChestZNeg != null) {
+                        pos = pos.offset(EnumFacing.NORTH);
+                        tileEntity = this.world.getTileEntity(pos);
+                    }
+                }
+
+                IBlockState state = this.world.getBlockState(pos);
+                if (tileEntity != null && state.hasCustomBreakingProgress()) {
+                    renderTE(tileEntity, pass, partialTicks, destroyProgress.getPartialBlockDamage());
+                }
+            }
+        }
+        this.postRenderDamagedBlocks();
+
+        TileEntityRendererDispatcher.instance.drawBatch(pass);
     }
 
     @Override
