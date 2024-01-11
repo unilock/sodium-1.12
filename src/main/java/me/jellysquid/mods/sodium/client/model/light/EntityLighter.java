@@ -1,6 +1,7 @@
 package me.jellysquid.mods.sodium.client.model.light;
 
 import me.jellysquid.mods.sodium.client.render.entity.EntityLightSampler;
+import me.jellysquid.mods.sodium.client.util.MathUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
@@ -16,9 +17,9 @@ public class EntityLighter {
         boolean calcBlockLight = !entity.isBurning();
 
         // Find the interpolated position of the entity
-        double x1 = MathHelper.clampedLerp(tickDelta, entity.prevPosX, entity.posX);
-        double y1 = MathHelper.clampedLerp(tickDelta, entity.prevPosY, entity.posY);
-        double z1 = MathHelper.clampedLerp(tickDelta, entity.prevPosZ, entity.posZ);
+        double x1 = MathUtil.lerp(tickDelta, entity.prevPosX, entity.posX);
+        double y1 = MathUtil.lerp(tickDelta, entity.prevPosY, entity.posY);
+        double z1 = MathUtil.lerp(tickDelta, entity.prevPosZ, entity.posZ);
 
         // Bounding boxes with no volume cause issues, ensure they're non-zero
         // Notably, armor stands in "Marker" mode decide this is a cute thing to do

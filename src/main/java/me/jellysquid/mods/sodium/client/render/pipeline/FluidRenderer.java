@@ -12,6 +12,7 @@ import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFlags;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
+import me.jellysquid.mods.sodium.client.util.MathUtil;
 import me.jellysquid.mods.sodium.client.util.Norm3b;
 import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
@@ -183,14 +184,14 @@ public class FluidRenderer {
             float s2 = (float) sprites[0].getIconHeight() / (sprites[0].getMaxV() - sprites[0].getMinV());
             float s3 = 4.0F / Math.max(s2, s1);
 
-            u1 = (float) MathHelper.clampedLerp(s3, u1, uAvg);
-            u2 = (float) MathHelper.clampedLerp(s3, u2, uAvg);
-            u3 = (float) MathHelper.clampedLerp(s3, u3, uAvg);
-            u4 = (float) MathHelper.clampedLerp(s3, u4, uAvg);
-            v1 = (float) MathHelper.clampedLerp(s3, v1, vAvg);
-            v2 = (float) MathHelper.clampedLerp(s3, v2, vAvg);
-            v3 = (float) MathHelper.clampedLerp(s3, v3, vAvg);
-            v4 = (float) MathHelper.clampedLerp(s3, v4, vAvg);
+            u1 = (float) MathUtil.lerp(s3, u1, uAvg);
+            u2 = (float) MathUtil.lerp(s3, u2, uAvg);
+            u3 = (float) MathUtil.lerp(s3, u3, uAvg);
+            u4 = (float) MathUtil.lerp(s3, u4, uAvg);
+            v1 = (float) MathUtil.lerp(s3, v1, vAvg);
+            v2 = (float) MathUtil.lerp(s3, v2, vAvg);
+            v3 = (float) MathUtil.lerp(s3, v3, vAvg);
+            v4 = (float) MathUtil.lerp(s3, v4, vAvg);
 
             quad.setSprite(sprite);
 
