@@ -38,7 +38,7 @@ public class ChunkProgram extends GlProgram {
 
     public void setup(MatrixStack matrixStack, float modelScale, float textureScale) {
         GL20.glUniform1i(this.uBlockTex, 0);
-        GL20.glUniform1i(this.uLightTex, 2);
+        GL20.glUniform1i(this.uLightTex, 1);
 
         GL20.glUniform3f(this.uModelScale, modelScale, modelScale, modelScale);
         GL20.glUniform2f(this.uTextureScale, textureScale, textureScale);
