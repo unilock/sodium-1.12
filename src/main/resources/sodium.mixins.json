@@ -29,6 +29,7 @@
     "features.chunk_rendering.MixinChunkBuilder",
     "features.chunk_rendering.MixinClientChunkManager",
     "features.chunk_rendering.MixinClientWorld",
+    "features.chunk_rendering.MixinRenderGlobal",
     "features.chunk_rendering.MixinWorldRenderer",
     "features.debug.MixinDebugHud",
     "features.fast_biome_colors.MixinBlock",
