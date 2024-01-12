@@ -34,6 +34,10 @@ public class MixinParticleManager {
 
     @WrapWithCondition(method = {"renderParticles", "renderLitParticles"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/Particle;renderParticle(Lnet/minecraft/client/renderer/BufferBuilder;Lnet/minecraft/entity/Entity;FFFFFF)V"))
     private boolean filterParticleList(Particle particle, BufferBuilder f8, Entity f9, float f10, float f11, float f12, float vec3d, float v, float buffer) {
+        if(this.cullingFrustum == null) {
+            return true;
+        }
+
         AxisAlignedBB box = particle.getBoundingBox();
 
         // Hack: Grow the particle's bounding box in order to work around mis-behaved particles
