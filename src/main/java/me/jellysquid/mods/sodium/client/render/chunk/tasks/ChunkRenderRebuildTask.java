@@ -128,11 +128,9 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                     IBakedModel model = cache.getBlockModels()
                                             .getModelForState(blockState);
 
-                                    blockState = blockState.getBlock().getExtendedState(blockState, slice, pos);
-
                                     final long seed = MathUtil.hashPos(pos);
 
-                                    if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState, pos, model, buffers.get(layer), true, seed)) {
+                                    if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState.getBlock().getExtendedState(blockState, slice, pos), pos, model, buffers.get(layer), true, seed)) {
                                         bounds.addBlock(relX, relY, relZ);
                                     }
 
