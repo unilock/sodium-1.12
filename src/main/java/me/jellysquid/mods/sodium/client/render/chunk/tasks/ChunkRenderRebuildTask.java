@@ -32,6 +32,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.IFluidBlock;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
 
 /**
@@ -99,7 +100,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
                         // If the block is vanilla air, assume it renders nothing. Don't use isAir because mods
                         // can abuse it for all sorts of things
-                        if (block.getMaterial(blockState) == Material.AIR) {
+                        if (blockState.getMaterial() == Material.AIR) {
                             continue;
                         }
 
@@ -114,7 +115,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                             }
                         }
 
-                        if (renderType == EnumBlockRenderType.MODEL) {
+                        if (renderType == EnumBlockRenderType.MODEL && !(block instanceof IFluidBlock)) {
                             IBakedModel model = cache.getBlockModels()
                                     .getModelForState(blockState);
 
@@ -134,7 +135,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                 }
 
                             }
-                        } else if (renderType == EnumBlockRenderType.LIQUID) {
+                        } else if (block instanceof IFluidBlock) {
                             for (BlockRenderLayer layer : LAYERS) {
                                 if(!block.canRenderInLayer(blockState, layer)) {
                                     continue;
