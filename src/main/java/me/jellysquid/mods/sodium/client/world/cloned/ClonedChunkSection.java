@@ -6,9 +6,11 @@ import me.jellysquid.mods.sodium.client.util.math.ChunkSectionPos;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 
@@ -29,6 +31,8 @@ public class ClonedChunkSection {
     private ExtendedBlockStorage data;
 
     private Biome[] biomeData;
+
+    private byte[][] lightData;
 
     private long lastUsedTimestamp = Long.MAX_VALUE;
 
@@ -92,6 +96,11 @@ public class ClonedChunkSection {
 
     public ChunkSectionPos getPosition() {
         return this.pos;
+    }
+
+    public int getLightLevel(int x, int y, int z, EnumSkyBlock type) {
+        NibbleArray lightArray = type == EnumSkyBlock.BLOCK ? this.data.getBlockLight() : this.data.getSkyLight();
+        return lightArray != null ? lightArray.get(x, y, z) : type.defaultLightValue;
     }
 
     private static ExtendedBlockStorage getChunkSection(Chunk chunk, ChunkSectionPos pos) {

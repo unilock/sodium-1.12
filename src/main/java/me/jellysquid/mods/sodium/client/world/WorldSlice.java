@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -64,6 +65,9 @@ public class WorldSlice implements IBlockAccess {
 
     // The world this slice has copied data from
     private final World world;
+    private WorldType worldType;
+    private final int defaultSkyLightValue;
+
 
     // Local Section->BlockState table.
     private final IBlockState[][] blockStatesArrays;
@@ -93,7 +97,6 @@ public class WorldSlice implements IBlockAccess {
 
     // The volume that this slice contains
     private StructureBoundingBox volume;
-    private WorldType worldType;
 
     public static ChunkRenderContext prepare(World world, ChunkSectionPos origin, ClonedChunkSectionCache sectionCache) {
         Chunk chunk = world.getChunk(origin.getX(), origin.getZ());
@@ -139,6 +142,7 @@ public class WorldSlice implements IBlockAccess {
     public WorldSlice(World world) {
         this.world = world;
         this.worldType = world.getWorldType();
+        this.defaultSkyLightValue = this.world.provider.hasSkyLight() ? EnumSkyBlock.SKY.defaultLightValue : 0;
 
         this.sections = new ClonedChunkSection[SECTION_TABLE_ARRAY_SIZE];
         this.blockStatesArrays = new IBlockState[SECTION_TABLE_ARRAY_SIZE][];
@@ -293,8 +297,71 @@ public class WorldSlice implements IBlockAccess {
     }
 
     @Override
-    public int getCombinedLight(BlockPos pos, int ambientDarkness) {
-        return this.world.getCombinedLight(pos, ambientDarkness);
+    public int getCombinedLight(BlockPos pos, int ambientLight) {
+        if (!blockBoxContains(this.volume, pos.getX(), pos.getY(), pos.getZ())) {
+            return (this.defaultSkyLightValue << 20) | (ambientLight << 4);
+        }
+
+        int i = this.getLightFromNeighborsFor(EnumSkyBlock.SKY, pos);
+        int j = this.getLightFromNeighborsFor(EnumSkyBlock.BLOCK, pos);
+
+        if (j < ambientLight)
+        {
+            j = ambientLight;
+        }
+
+        return i << 20 | j << 4;
+    }
+
+    private int getLightFor(EnumSkyBlock type, int relX, int relY, int relZ) {
+        ClonedChunkSection section = this.sections[getLocalSectionIndex(relX >> 4, relY >> 4, relZ >> 4)];
+
+        return section.getLightLevel(relX & 15, relY & 15, relZ & 15, type);
+    }
+
+    private int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos) {
+        if(!this.world.provider.hasSkyLight() && type == EnumSkyBlock.SKY) {
+            return this.defaultSkyLightValue;
+        }
+
+        int relX = pos.getX() - this.baseX;
+        int relY = pos.getY() - this.baseY;
+        int relZ = pos.getZ() - this.baseZ;
+
+        IBlockState state = this.getBlockStateRelative(relX, relY, relZ);
+
+        if(!state.useNeighborBrightness()) {
+            return getLightFor(type, relX, relY, relZ);
+        } else {
+            int west = getLightFor(type, relX - 1, relY, relZ);
+            int east = getLightFor(type, relX + 1, relY, relZ);
+            int up = getLightFor(type, relX, relY + 1, relZ);
+            int down = getLightFor(type, relX, relY - 1, relZ);
+            int north = getLightFor(type, relX, relY, relZ + 1);
+            int south = getLightFor(type, relX, relY, relZ - 1);
+
+            if(east > west) {
+                west = east;
+            }
+
+            if(up > west) {
+                west = up;
+            }
+
+            if(down > west) {
+                west = down;
+            }
+
+            if(north > west) {
+                west = north;
+            }
+
+            if(south > west) {
+                west = south;
+            }
+
+            return west;
+        }
     }
 
     @Override
@@ -308,7 +375,7 @@ public class WorldSlice implements IBlockAccess {
             return section.getBiomeForNoiseGen(pos.getX() & 15, pos.getZ() & 15);
         }
 
-        return this.world.getBiomeForCoordsBody(pos);
+        return Biomes.PLAINS;
     }
 
     @Override
