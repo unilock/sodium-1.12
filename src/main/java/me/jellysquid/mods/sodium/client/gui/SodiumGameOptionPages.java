@@ -42,23 +42,13 @@ public class SodiumGameOptionPages {
                         .setControl(opt -> new SliderControl(opt, 0, 100, 1, ControlValueFormatter.brightness()))
                         .setBinding((opts, value) -> opts.gammaSetting = value * 0.01F, (opts) -> (int) (opts.gammaSetting / 0.01F))
                         .build())
-                // TODO
-                /*.add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
+                .add(OptionImpl.createBuilder(boolean.class, sodiumOpts)
                         .setName(new TextComponentTranslation("sodium.options.clouds.name"))
                         .setTooltip(new TextComponentTranslation("sodium.options.clouds.tooltip"))
                         .setControl(TickBoxControl::new)
-                        .setBinding((opts, value) -> {
-                            opts.quality.enableClouds = value;
-
-                            if (MinecraftClient.isFabulousGraphicsOrBetter()) {
-                                Framebuffer framebuffer = MinecraftClient.getInstance().worldRenderer.getCloudsFramebuffer();
-                                if (framebuffer != null) {
-                                    framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
-                                }
-                            }
-                        }, (opts) -> opts.quality.enableClouds)
+                        .setBinding((opts, value) -> opts.quality.enableClouds = value, (opts) -> opts.quality.enableClouds)
                         .setImpact(OptionImpact.LOW)
-                        .build())*/
+                        .build())
                 .build());
 
         groups.add(OptionGroup.createBuilder()
