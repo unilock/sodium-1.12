@@ -33,6 +33,7 @@ import net.minecraft.world.WorldType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
+import org.embeddedt.embeddium.compat.ccl.CCLCompat;
 
 /**
  * Rebuilds all the meshes of a chunk for each given render pass with non-occluded blocks. The result is then uploaded
@@ -112,36 +113,32 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                             if (slice.getWorldType() != WorldType.DEBUG_ALL_BLOCK_STATES) {
                                 blockState = blockState.getActualState(slice, pos);
                             }
-                        }
 
-                        if (renderType == EnumBlockRenderType.MODEL) {
-                            IBakedModel model = cache.getBlockModels()
-                                    .getModelForState(blockState);
-
-                            blockState = blockState.getBlock().getExtendedState(blockState, slice, pos);
-
-                            for (BlockRenderLayer layer : LAYERS) {
+                            for(BlockRenderLayer layer : LAYERS) {
                                 if(!block.canRenderInLayer(blockState, layer)) {
                                     continue;
                                 }
 
                                 ForgeHooksClient.setRenderLayer(layer);
 
-                                final long seed = MathUtil.hashPos(pos);
+                                if (CCLCompat.canHandle(renderType)) {
+                                    CCLCompat.renderBlock(slice, pos, blockState, buffers.get(layer));
+                                } else if (renderType == EnumBlockRenderType.MODEL) {
+                                    IBakedModel model = cache.getBlockModels()
+                                            .getModelForState(blockState);
 
-                                if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState, pos, model, buffers.get(layer), true, seed)) {
-                                    bounds.addBlock(relX, relY, relZ);
-                                }
+                                    blockState = blockState.getBlock().getExtendedState(blockState, slice, pos);
 
-                            }
-                        } else if (renderType == EnumBlockRenderType.LIQUID) {
-                            for (BlockRenderLayer layer : LAYERS) {
-                                if(!block.canRenderInLayer(blockState, layer)) {
-                                    continue;
-                                }
+                                    final long seed = MathUtil.hashPos(pos);
 
-                                if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
-                                    bounds.addBlock(relX, relY, relZ);
+                                    if (cache.getBlockRenderer().renderModel(cache.getLocalSlice(), blockState, pos, model, buffers.get(layer), true, seed)) {
+                                        bounds.addBlock(relX, relY, relZ);
+                                    }
+
+                                } else if (renderType == EnumBlockRenderType.LIQUID) {
+                                    if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
+                                        bounds.addBlock(relX, relY, relZ);
+                                    }
                                 }
                             }
                         }
