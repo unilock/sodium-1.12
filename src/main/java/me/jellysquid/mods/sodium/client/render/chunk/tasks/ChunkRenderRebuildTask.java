@@ -32,6 +32,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.IFluidBlock;
 import org.embeddedt.embeddium.api.ChunkDataBuiltEvent;
 import org.embeddedt.embeddium.compat.ccl.CCLCompat;
 
@@ -100,7 +101,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
                         // If the block is vanilla air, assume it renders nothing. Don't use isAir because mods
                         // can abuse it for all sorts of things
-                        if (block.getMaterial(blockState) == Material.AIR) {
+                        if (blockState.getMaterial() == Material.AIR) {
                             continue;
                         }
 
@@ -123,7 +124,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
                                 if (CCLCompat.canHandle(renderType)) {
                                     CCLCompat.renderBlock(slice, pos, blockState, buffers.get(layer));
-                                } else if (renderType == EnumBlockRenderType.MODEL) {
+                                } else if (renderType == EnumBlockRenderType.MODEL && !(block instanceof IFluidBlock)) {
                                     IBakedModel model = cache.getBlockModels()
                                             .getModelForState(blockState);
 
@@ -135,7 +136,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                         bounds.addBlock(relX, relY, relZ);
                                     }
 
-                                } else if (renderType == EnumBlockRenderType.LIQUID) {
+                                } else if (block instanceof IFluidBlock) {
                                     if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
                                         bounds.addBlock(relX, relY, relZ);
                                     }
