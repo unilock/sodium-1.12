@@ -13,11 +13,16 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(BlockLiquid.class)
 public abstract class MixinBlockLiquid implements IFluidBlock {
+    private Fluid sodium$forgeFluid;
 
     @Override
     public Fluid getFluid() {
-        Block block = ((Block) (Object) this);
-        return block.getMaterial(block.getDefaultState()) == Material.WATER ? FluidRegistry.WATER : FluidRegistry.LAVA;
+        Fluid fluid = sodium$forgeFluid;
+        if(fluid == null) {
+            Block block = ((Block) (Object) this);
+            sodium$forgeFluid = fluid = block.getDefaultState().getMaterial() == Material.WATER ? FluidRegistry.WATER : FluidRegistry.LAVA;
+        }
+        return fluid;
     }
 
     @Override

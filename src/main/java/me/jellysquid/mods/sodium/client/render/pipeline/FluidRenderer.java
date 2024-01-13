@@ -15,6 +15,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.format.ModelVertexSink;
 import me.jellysquid.mods.sodium.client.util.MathUtil;
 import me.jellysquid.mods.sodium.client.util.Norm3b;
 import me.jellysquid.mods.sodium.client.util.color.ColorABGR;
+import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import me.jellysquid.mods.sodium.common.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -22,6 +23,7 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
@@ -29,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.IFluidBlock;
 import org.embeddedt.embeddium.render.fluid.EmbeddiumFluidSpriteCache;
 import repack.joml.Vector3d;
@@ -36,12 +39,6 @@ import repack.joml.Vector3d;
 public class FluidRenderer {
 	
 	private static final float EPSILON = 0.001f;
-	
-    private static final IBlockColor FLUID_COLOR_PROVIDER = (state, world, pos, tintIndex) -> {
-        if (world == null) return 0xFFFFFFFF;
-        // TODO Dangerous for CME's, but method is hardcoded for World, and we have WorldSlice
-        return WorldUtil.getFluid(state).getColor(Minecraft.getMinecraft().world, pos);
-    };
 
     private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
 
@@ -55,6 +52,8 @@ public class FluidRenderer {
 
     private final EmbeddiumFluidSpriteCache fluidSpriteCache = new EmbeddiumFluidSpriteCache();
 
+    private final BlockColors vanillaBlockColors;
+
     public FluidRenderer(Minecraft client, LightPipelineProvider lighters, BiomeColorBlender biomeColorBlender) {
         int normal = Norm3b.pack(0.0f, 1.0f, 0.0f);
 
@@ -64,6 +63,7 @@ public class FluidRenderer {
 
         this.lighters = lighters;
         this.biomeColorBlender = biomeColorBlender;
+        this.vanillaBlockColors = client.getBlockColors();
     }
 
     private boolean isFluidOccluded(IBlockAccess world, int x, int y, int z, EnumFacing dir, Fluid fluid) {
@@ -358,7 +358,11 @@ public class FluidRenderer {
         int[] biomeColors = null;
 
         if (colorized) {
-            biomeColors = this.biomeColorBlender.getColors(FLUID_COLOR_PROVIDER, world, world.getBlockState(pos), pos, quad);
+            IBlockState state = world.getBlockState(pos);
+            IBlockColor colorProvider = ((BlockColorsExtended)this.vanillaBlockColors).getColorProvider(state);
+            if(colorProvider != null) {
+                biomeColors = this.biomeColorBlender.getColors(colorProvider, world, state, pos, quad);
+            }
         }
 
         for (int i = 0; i < 4; i++) {
