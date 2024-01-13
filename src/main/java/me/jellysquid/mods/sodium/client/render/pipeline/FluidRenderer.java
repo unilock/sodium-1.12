@@ -310,9 +310,7 @@ public class FluidRenderer {
                 	BlockPos adjPos = this.scratchPos.setPos(adjX, adjY, adjZ);
                     IBlockState adjBlock = world.getBlockState(adjPos);
 
-                    if (WorldUtil.shouldDisplayFluidOverlay(adjBlock)) {
-                    	// should ignore invisible blocks, barriers, light blocks
-                        // use static water when adjacent block is ice, glass, stained glass, tinted glass
+                    if (adjBlock.getBlockFaceShape(world, adjPos, dir.getOpposite()) == net.minecraft.block.state.BlockFaceShape.SOLID) {
                         sprite = oSprite;
                     }
                 }
