@@ -104,7 +104,12 @@ public class BlockRenderer {
             BakedQuad quad = quads.get(i);
 
             QuadLightData light = this.cachedQuadLightData;
-            lighter.calculate((ModelQuadView) quad, pos, light, cullFace, quad.getFace(), quad.shouldApplyDiffuseLighting());
+            // TODO: Does null mean we should treat it as non-axis-aligned?
+            EnumFacing quadFace = quad.getFace();
+            if (quadFace == null) {
+                quadFace = EnumFacing.UP;
+            }
+            lighter.calculate((ModelQuadView) quad, pos, light, cullFace, quadFace, quad.shouldApplyDiffuseLighting());
 
             if (quad.hasTintIndex() && colorizer == null) {
                 colorizer = this.blockColors.getColorProvider(state);
