@@ -1,7 +1,6 @@
 plugins {
     id "java-library"
     id "com.gtnewhorizons.retrofuturagradle" version "1.3.26"
-    id "cl.franciscosolis.blossom-extended" version "1.3.1"
 }
 
 // Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
@@ -40,16 +39,13 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor "org.ow2.asm:asm-debug-all:5.2"
-    annotationProcessor "com.google.guava:guava:32.1.2-jre"
-    annotationProcessor "com.google.code.gson:gson:2.8.9"
-
-    implementation("zone.rong:mixinbooter:8.9")
-
-    def mixinBooter = modUtils.enableMixins("org.spongepowered:mixin:0.8.3", "sodium.mixins.refmap.json")
+    def mixinBooter = modUtils.enableMixins("zone.rong:mixinbooter:8.9", "sodium.mixins.refmap.json")
     api (mixinBooter) {
         transitive = false
     }
+    annotationProcessor "org.ow2.asm:asm-debug-all:5.2"
+    annotationProcessor "com.google.guava:guava:32.1.2-jre"
+    annotationProcessor "com.google.code.gson:gson:2.8.9"
     annotationProcessor (mixinBooter) {
         transitive = false
     }
@@ -79,16 +75,14 @@ jar {
     }
 }
 
-processResources.configure {
-    blossom {
-        String mcmod = "src/main/resources/mcmod.info"
-        String mcmeta = "src/main/resources/pack.mcmeta"
-        replaceToken("mod_id", mod_id, mcmod)
-        replaceToken("mod_name", mod_name, mcmod)
-        replaceToken("mod_description", mod_description, mcmod)
-        replaceToken("mod_version", mod_version, mcmod)
-        replaceToken("mod_authors", mod_authors, mcmod)
-        replaceToken("minecraft_version", minecraft_version, mcmod)
-        replaceToken("mod_id", mod_id, mcmeta)
+processResources {
+    filesMatching("mcmod.info") { fcd ->
+        fcd.expand(
+                'mod_id': project.mod_id,
+                'mod_name': project.mod_name,
+                'mod_version': project.mod_version,
+                'mod_description': project.mod_description,
+                'minecraft_version': project.minecraft_version
+        )
     }
 }
