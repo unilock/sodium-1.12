@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client.render.vertex;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -20,7 +21,7 @@ public class VertexFormatDescription {
         NORMAL(DefaultVertexFormats.NORMAL_3B);
 
         final VertexFormatElement underlyingElement;
-        static final Map<VertexFormatElement, Element> VANILLA_TO_COMMON = new Reference2ReferenceOpenHashMap<>();
+        static final Map<VertexFormatElement, Element> VANILLA_TO_COMMON = new Object2ObjectOpenHashMap<>();
         Element(VertexFormatElement baseElement) {
             this.underlyingElement = baseElement;
         }

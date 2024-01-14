@@ -51,6 +51,8 @@ dependencies {
     implementation rfg.deobf("curse.maven:codechicken-lib-1-8-242818:2779848")
 
     // testing
+    //implementation rfg.deobf("curse.maven:enderio-64578:4674244")
+    //implementation rfg.deobf("curse.maven:endercore-231868:4671384")
     //implementation rfg.deobf("curse.maven:redstoneflux-270789:2920436")
     //implementation rfg.deobf("curse.maven:cofhcore-69162:2920433")
     //implementation rfg.deobf("curse.maven:cofhworld-271384:2920434")
