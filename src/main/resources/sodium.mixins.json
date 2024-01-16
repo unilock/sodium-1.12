@@ -16,7 +16,7 @@
     "core.MixinDirection",
     "core.frustum.MixinFrustum",
     "core.model.MixinBlockColors",
-    "core.model.MixinItemColors",
+    //"core.model.MixinItemColors",
     "core.pipeline.MixinBakedQuad",
     "core.pipeline.MixinBufferBuilder",
     "core.pipeline.MixinVertexFormat",
