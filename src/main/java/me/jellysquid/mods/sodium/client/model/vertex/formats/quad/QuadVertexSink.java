@@ -1,15 +1,15 @@
 package me.jellysquid.mods.sodium.client.model.vertex.formats.quad;
 
 import me.jellysquid.mods.sodium.client.model.vertex.VertexSink;
-import me.jellysquid.mods.sodium.client.util.CustomFormats;
 import me.jellysquid.mods.sodium.client.util.math.Matrix4fExtended;
 import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import me.jellysquid.mods.sodium.client.util.math.MatrixUtil;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 
 public interface QuadVertexSink extends VertexSink {
 
-    VertexFormat VERTEX_FORMAT = CustomFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL;
+    VertexFormat VERTEX_FORMAT = DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP;
 
     /**
      * Writes a quad vertex to this sink.
