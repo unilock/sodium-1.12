@@ -26,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -121,8 +122,8 @@ public class FluidRenderer {
         }
 
         TextureAtlasSprite[] sprites = fluidSpriteCache.getSprites(fluid);
-        // TODO We can't use getColor(World, BlockPos) since IBlockAccess is WorldSlice
-        boolean hc = fluid.getColor() != 0xffffffff;
+        // Treat any non-lava fluid as colored, fluids without color providers will just use -1 which is a fine default
+        boolean hc = fluidState.getBlock() != Blocks.LAVA && fluidState.getBlock() != Blocks.FLOWING_LAVA;
 
         boolean rendered = false;
 
