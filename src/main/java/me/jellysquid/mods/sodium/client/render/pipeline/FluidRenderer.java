@@ -36,6 +36,8 @@ import net.minecraftforge.fluids.IFluidBlock;
 import org.embeddedt.embeddium.render.fluid.EmbeddiumFluidSpriteCache;
 import repack.joml.Vector3d;
 
+import java.util.Objects;
+
 public class FluidRenderer {
 	
 	private static final float EPSILON = 0.001f;
@@ -104,7 +106,7 @@ public class FluidRenderer {
         int posY = pos.getY();
         int posZ = pos.getZ();
 
-        Fluid fluid = ((IFluidBlock) fluidState.getBlock()).getFluid();
+        Fluid fluid = WorldUtil.toFluidBlock(fluidState.getBlock()).getFluid();
 
         boolean sfUp = this.isFluidOccluded(world, posX, posY, posZ, EnumFacing.UP, fluid);
         boolean sfDown = this.isFluidOccluded(world, posX, posY, posZ, EnumFacing.DOWN, fluid) ||
@@ -427,14 +429,14 @@ public class FluidRenderer {
             int z2 = z - (i >> 1 & 1);
 
             Block block = world.getBlockState(this.scratchPos.setPos(x2, y + 1, z2)).getBlock();
-            if (block instanceof IFluidBlock && ((IFluidBlock) block).getFluid() == fluid) {
+            if (WorldUtil.getFluidOfBlock(block) == fluid) {
                 return 1.0F;
             }
 
             BlockPos pos = this.scratchPos.setPos(x2, y, z2);
 
             IBlockState blockState = world.getBlockState(pos);
-            Fluid fluid2 = blockState.getBlock() instanceof IFluidBlock ? ((IFluidBlock) blockState.getBlock()).getFluid() : null;
+            Fluid fluid2 = WorldUtil.getFluidOfBlock(blockState.getBlock());
 
             if (fluid == fluid2) {
                 float height = WorldUtil.getFluidHeight(fluid2, blockState.getValue(BlockLiquid.LEVEL));

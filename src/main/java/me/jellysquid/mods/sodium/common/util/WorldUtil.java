@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.common.util;
 
+import me.jellysquid.mods.sodium.client.world.VanillaFluidBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -107,8 +108,8 @@ public class WorldUtil {
     }
 
     public static Fluid getFluid(IBlockState b) {
-        Block block = b.getBlock();
-        return block instanceof IFluidBlock ? ((IFluidBlock) block).getFluid() : null;
+        IFluidBlock fluidBlock = toFluidBlock(b.getBlock());
+        return fluidBlock != null ? fluidBlock.getFluid() : null;
     }
 
     /**
@@ -131,5 +132,20 @@ public class WorldUtil {
             return true;
         }
         return b.getMaterial() != Material.ICE && b.isSideSolid(world, pos, dir);
+    }
+
+    public static IFluidBlock toFluidBlock(Block block) {
+        if(block instanceof VanillaFluidBlock) {
+            return ((VanillaFluidBlock) block).getFakeFluidBlock();
+        } else if(block instanceof IFluidBlock) {
+            return (IFluidBlock)block;
+        } else {
+            return null;
+        }
+    }
+
+    public static Fluid getFluidOfBlock(Block block) {
+        IFluidBlock fluidBlock = toFluidBlock(block);
+        return fluidBlock != null ? fluidBlock.getFluid() : null;
     }
 }

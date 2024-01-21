@@ -14,6 +14,7 @@ import me.jellysquid.mods.sodium.client.util.MathUtil;
 import me.jellysquid.mods.sodium.client.util.task.CancellationSource;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
+import me.jellysquid.mods.sodium.common.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -124,7 +125,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
 
                                 if (CCLCompat.canHandle(renderType)) {
                                     CCLCompat.renderBlock(slice, pos, blockState, buffers.get(layer));
-                                } else if (renderType == EnumBlockRenderType.MODEL && !(block instanceof IFluidBlock)) {
+                                } else if (renderType == EnumBlockRenderType.MODEL && WorldUtil.toFluidBlock(block) == null) {
                                     IBakedModel model = cache.getBlockModels()
                                             .getModelForState(blockState);
 
@@ -134,7 +135,7 @@ public class ChunkRenderRebuildTask<T extends ChunkGraphicsState> extends ChunkR
                                         bounds.addBlock(relX, relY, relZ);
                                     }
 
-                                } else if (block instanceof IFluidBlock) {
+                                } else if (WorldUtil.toFluidBlock(block) != null) {
                                     if (cache.getFluidRenderer().render(cache.getLocalSlice(), blockState, pos, buffers.get(layer))) {
                                         bounds.addBlock(relX, relY, relZ);
                                     }
