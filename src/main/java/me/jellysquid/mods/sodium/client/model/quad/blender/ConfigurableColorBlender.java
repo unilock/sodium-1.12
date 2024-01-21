@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client.model.quad.blender;
 
+import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -13,12 +14,11 @@ class ConfigurableColorBlender implements BiomeColorBlender {
 
     public ConfigurableColorBlender(Minecraft client) {
         this.defaultBlender = new FlatBiomeColorBlender();
-        this.smoothBlender = isSmoothBlendingEnabled(client) ? new SmoothBiomeColorBlender() : this.defaultBlender;
+        this.smoothBlender = isSmoothBlendingEnabled() ? new SmoothBiomeColorBlender() : this.defaultBlender;
     }
 
-    // TODO
-    private static boolean isSmoothBlendingEnabled(Minecraft client) {
-        return true/*client.gameSettings.biomeBlendRadius > 0*/;
+    private static boolean isSmoothBlendingEnabled() {
+        return SodiumClientMod.options().quality.biomeBlendRadius > 0;
     }
 
     @Override

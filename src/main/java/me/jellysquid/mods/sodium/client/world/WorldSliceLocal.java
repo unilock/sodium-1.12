@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeColorHelper;
 
 import javax.annotation.Nullable;
 
@@ -14,10 +15,10 @@ import javax.annotation.Nullable;
  * Wrapper object used to defeat identity comparisons in mods. Since vanilla provides a unique object to them for each
  * subchunk, we do the same.
  */
-public class WorldSliceLocal implements IBlockAccess {
-    private final IBlockAccess view;
+public class WorldSliceLocal implements SodiumBlockAccess {
+    private final SodiumBlockAccess view;
 
-    public WorldSliceLocal(IBlockAccess view) {
+    public WorldSliceLocal(SodiumBlockAccess view) {
         this.view = view;
     }
 
@@ -60,5 +61,10 @@ public class WorldSliceLocal implements IBlockAccess {
     @Override
     public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
         return view.isSideSolid(pos, side, _default);
+    }
+
+    @Override
+    public int getBlockTint(BlockPos pos, BiomeColorHelper.ColorResolver resolver) {
+        return view.getBlockTint(pos, resolver);
     }
 }

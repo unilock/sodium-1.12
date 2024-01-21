@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * Object pooling should be used to avoid huge allocations as this class contains many large arrays.
  */
-public class WorldSlice implements IBlockAccess {
+public class WorldSlice implements SodiumBlockAccess {
     // The number of blocks on each axis in a section.
     private static final int SECTION_BLOCK_LENGTH = 16;
 
@@ -376,6 +376,30 @@ public class WorldSlice implements IBlockAccess {
         }
 
         return Biomes.PLAINS;
+    }
+
+    @Override
+    public int getBlockTint(BlockPos pos, BiomeColorHelper.ColorResolver resolver) {
+        if(!blockBoxContains(this.volume, pos.getX(), pos.getY(), pos.getZ())) {
+            return resolver.getColorAtPos(Biomes.PLAINS, pos);
+        }
+
+        BiomeColorCache cache;
+
+        if (this.prevColorResolver == resolver) {
+            cache = this.prevColorCache;
+        } else {
+            cache = this.biomeColorCaches.get(resolver);
+
+            if (cache == null) {
+                this.biomeColorCaches.put(resolver, cache = new BiomeColorCache(resolver, this));
+            }
+
+            this.prevColorResolver = resolver;
+            this.prevColorCache = cache;
+        }
+
+        return cache.getBlendedColor(pos);
     }
 
     @Override

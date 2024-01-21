@@ -27,7 +27,7 @@ public interface ControlValueFormatter {
     String format(int value);
 
     static ControlValueFormatter percentage() {
-        return (v) -> new TextComponentTranslation(v + "%").getFormattedText();
+        return (v) -> v + "%";
     }
 
     static ControlValueFormatter multiplier() {

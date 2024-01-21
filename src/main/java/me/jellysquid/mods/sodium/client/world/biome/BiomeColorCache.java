@@ -1,5 +1,7 @@
 package me.jellysquid.mods.sodium.client.world.biome;
 
+import me.jellysquid.mods.sodium.client.SodiumClientMod;
+import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
 import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import me.jellysquid.mods.sodium.client.util.math.ChunkSectionPos;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
@@ -30,8 +32,7 @@ public class BiomeColorCache {
     public BiomeColorCache(BiomeColorHelper.ColorResolver resolver, WorldSlice slice) {
         this.resolver = resolver;
         this.slice = slice;
-        // TODO
-        this.radius = 3/*Minecraft.getMinecraft().gameSettings.biomeBlendRadius*/;
+        this.radius = SodiumClientMod.options().quality.biomeBlendRadius;
 
         ChunkSectionPos origin = this.slice.getOrigin();
 

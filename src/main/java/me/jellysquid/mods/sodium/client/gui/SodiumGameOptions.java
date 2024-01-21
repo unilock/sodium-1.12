@@ -50,6 +50,9 @@ public class SodiumGameOptions {
         public GraphicsQuality weatherQuality = GraphicsQuality.DEFAULT;
         public GraphicsQuality leavesQuality = GraphicsQuality.DEFAULT;
 
+        public int biomeBlendRadius = 2;
+        public float entityDistanceScaling = 1.0F;
+
         public boolean enableVignette = true;
         public boolean enableClouds = true;
 
