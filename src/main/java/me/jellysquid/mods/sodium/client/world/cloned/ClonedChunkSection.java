@@ -73,11 +73,12 @@ public class ClonedChunkSection {
             }
         }
 
+        BlockPos.MutableBlockPos biomePos = new BlockPos.MutableBlockPos();
         // Fill biome data
         for(int z = pos.getMinZ(); z <= pos.getMaxZ(); z++) {
             for(int x = pos.getMinX(); x <= pos.getMaxX(); x++) {
-                // TODO Check if correct
-                this.biomeData[((z & 15) << 4) | (x & 15)] = world.getBiome(new BlockPos(x, 100, z));
+                biomePos.setPos(x, 100, z);
+                this.biomeData[((z & 15) << 4) | (x & 15)] = world.getBiome(biomePos);
             }
         }
     }
