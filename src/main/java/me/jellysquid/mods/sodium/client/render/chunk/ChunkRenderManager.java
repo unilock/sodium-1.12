@@ -604,7 +604,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
             // rebuilt. Computation of occlusion data needs to be isolated from chunk rebuilds for that to be feasible.
             //
             // TODO: Avoid rebuilding chunks that aren't visible to the player
-            if (render.scheduleRebuild(important)) {
+            if (render.scheduleRebuild(important) && render.canRebuild()) {
                 (render.needsImportantRebuild() ? this.importantRebuildQueue : this.rebuildQueue)
                         .enqueue(render);
             }
