@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.common.config;
 
+import me.jellysquid.mods.sodium.client.SodiumClientMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
  * Documentation of these options: https://github.com/jellysquid3/sodium-fabric/wiki/Configuration-File
  */
 public class SodiumConfig {
-    private static final Logger LOGGER = LogManager.getLogger("EmbeddiumConfig");
+    private static final Logger LOGGER = LogManager.getLogger(SodiumClientMod.MODNAME + "Config");
 
     private static final String JSON_KEY_SODIUM_OPTIONS = "sodium:options";
 
@@ -182,7 +183,7 @@ public class SodiumConfig {
         }
 
         try (Writer writer = new FileWriter(file)) {
-            writer.write("# This is the configuration file for Sodium.\n");
+            writer.write("# This is the configuration file for " + SodiumClientMod.MODNAME + ".\n");
             writer.write("#\n");
             writer.write("# You can find information on editing this file and all the available options here:\n");
             writer.write("# https://github.com/jellysquid3/sodium-fabric/wiki/Configuration-File\n");

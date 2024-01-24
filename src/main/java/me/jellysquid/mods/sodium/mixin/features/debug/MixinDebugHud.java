@@ -27,7 +27,7 @@ public abstract class MixinDebugHud {
     private ArrayList<String> redirectRightTextEarly(Object[] elements) {
         ArrayList<String> strings = Lists.newArrayList((String[]) elements);
         strings.add("");
-        strings.add("Sodium Renderer");
+        strings.add(SodiumClientMod.MODNAME + " Renderer");
         strings.add(TextFormatting.UNDERLINE + getFormattedVersionText());
         strings.add("");
         strings.addAll(getChunkRendererDebugStrings());
@@ -70,7 +70,7 @@ public abstract class MixinDebugHud {
 
         List<String> strings = new ArrayList<>(5);
         strings.add("Chunk Renderer: " + backend.getRendererName());
-        strings.add("Block Renderer: " + "Sodium");
+        strings.add("Block Renderer: " + SodiumClientMod.MODNAME);
         strings.addAll(backend.getDebugStrings());
 
         return strings;

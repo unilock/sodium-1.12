@@ -13,7 +13,7 @@ import java.util.Map;
 public class SodiumMixinTweaker implements IFMLLoadingPlugin, IEarlyMixinLoader {
     @Override
     public List<String> getMixinConfigs() {
-        return ImmutableList.of("sodium.mixins.json");
+        return ImmutableList.of(SodiumClientMod.MODID + ".mixins.json");
     }
 
     @Override

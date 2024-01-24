@@ -17,12 +17,12 @@ minecraft {
     username.set("Developer")
 
     injectedTags.put("MOD_VERSION", mod_version)
-    injectedTags.put("MOD_NAME", "Sodium-Vintage")
+    injectedTags.put("MOD_NAME", "Vintagium")
 }
 
 tasks.injectTags.outputClassName.set("${mod_base_package}.Tags")
 
-tasks.deobfuscateMergedJarToSrg.configure {accessTransformerFiles.from("src/main/resources/META-INF/sodium_at.cfg")}
+tasks.deobfuscateMergedJarToSrg.configure {accessTransformerFiles.from("src/main/resources/META-INF/vintagium_at.cfg")}
 
 repositories {
     maven {	url "https://maven.cleanroommc.com" }
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    def mixinBooter = modUtils.enableMixins("zone.rong:mixinbooter:8.9", "sodium.mixins.refmap.json")
+    def mixinBooter = modUtils.enableMixins("zone.rong:mixinbooter:8.9", "vintagium.mixins.refmap.json")
     api (mixinBooter) {
         transitive = false
     }
@@ -70,7 +70,7 @@ jar {
                 "FMLCorePlugin": "me.jellysquid.mods.sodium.client.SodiumMixinTweaker",
                 "FMLCorePluginContainsFMLMod": true,
                 "ForceLoadAsMod": true,
-                "FMLAT": "sodium_at.cfg"
+                "FMLAT": "vintagium_at.cfg"
         )
     }
 }
