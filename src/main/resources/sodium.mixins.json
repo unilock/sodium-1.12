@@ -26,6 +26,8 @@
     "features.buffer_builder.fast_advance.MixinVertexFormat",
     //"features.buffer_builder.fast_sort.MixinBufferBuilder",
     "features.chunk_rendering.AccessorActiveRenderInfo",
+    "features.chunk_rendering.AccessorBlockFluidRenderer",
+    "features.chunk_rendering.AccessorBlockRenderDispatcher",
     "features.chunk_rendering.MixinBiomeColorHelper",
     "features.chunk_rendering.MixinChunkBuilder",
     "features.chunk_rendering.MixinClientChunkManager",
