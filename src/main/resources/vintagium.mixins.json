@@ -37,6 +37,8 @@
     "features.debug.MixinDebugHud",
     "features.fast_biome_colors.MixinBlock",
     "features.gui.MixinDebugHud",
+    "features.entity.smooth_lighting.MixinEntityRenderer",
+    "features.entity.smooth_lighting.MixinPaintingEntityRenderer",
     "features.model.MixinMultipartBakedModel",
     "features.model.MixinWeightedBakedModel",
     "features.options.MixinGameOptions",

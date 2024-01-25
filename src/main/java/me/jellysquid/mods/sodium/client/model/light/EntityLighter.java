@@ -1,11 +1,11 @@
 package me.jellysquid.mods.sodium.client.model.light;
 
-import me.jellysquid.mods.sodium.client.render.entity.EntityLightSampler;
 import me.jellysquid.mods.sodium.client.util.MathUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.EnumSkyBlock;
 
 public class EntityLighter {
     private static final double MIN_BOX_SIZE = 0.001D;
@@ -13,7 +13,7 @@ public class EntityLighter {
     private static final double MAX_LIGHT_VAL = 15.0;
     private static final double MAX_LIGHTMAP_COORD = 240.0D;
 
-    public static <T extends Entity> int getBlendedLight(EntityLightSampler<T> lighter, T entity, float tickDelta) {
+    public static int getBlendedLight(Entity entity, float tickDelta) {
         boolean calcBlockLight = !entity.isBurning();
 
         // Find the interpolated position of the entity
@@ -78,10 +78,10 @@ public class EntityLighter {
                     max += weight;
 
                     // Sum the light actually contributed by this volume
-                    sl += weight * (lighter.bridge$getSkyLight(entity, pos) / MAX_LIGHT_VAL);
+                    sl += weight * (entity.world.getLightFor(EnumSkyBlock.SKY, pos) / MAX_LIGHT_VAL);
 
                     if (calcBlockLight) {
-                        bl += weight * (lighter.bridge$getBlockLight(entity, pos) / MAX_LIGHT_VAL);
+                        bl += weight * (entity.world.getLightFor(EnumSkyBlock.BLOCK, pos) / MAX_LIGHT_VAL);
                     } else {
                         bl += weight;
                     }

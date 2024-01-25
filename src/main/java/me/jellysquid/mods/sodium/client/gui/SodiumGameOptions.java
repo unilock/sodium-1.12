@@ -85,9 +85,9 @@ public class SodiumGameOptions {
     }
 
     public enum LightingQuality implements FormattedTextProvider {
-        HIGH(new TextComponentTranslation("options.ao.max")),
+        OFF(new TextComponentTranslation("options.ao.off")),
         LOW(new TextComponentTranslation("options.ao.min")),
-        OFF(new TextComponentTranslation("options.ao.off"));
+        HIGH(new TextComponentTranslation("options.ao.max"));
 
         private final ITextComponent name;
 
