@@ -70,7 +70,6 @@ public abstract class MixinDebugHud {
 
         List<String> strings = new ArrayList<>(5);
         strings.add("Chunk Renderer: " + backend.getRendererName());
-        strings.add("Block Renderer: " + SodiumClientMod.MODNAME);
         strings.addAll(backend.getDebugStrings());
 
         return strings;
