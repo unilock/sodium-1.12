@@ -349,7 +349,7 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         GlStateManager.popMatrix();
     }
 
-    public void renderTileEntities(Entity entity, ICamera camera, float partialTicks, Map<Integer, DestroyBlockProgress> damagedBlocks) {
+    public void renderTileEntities(float partialTicks, Map<Integer, DestroyBlockProgress> damagedBlocks) {
         int pass = MinecraftForgeClient.getRenderPass();
         TileEntityRendererDispatcher.instance.preDrawBatch();
         for (TileEntity tileEntity : this.chunkRenderManager.getVisibleBlockEntities()) {
@@ -359,8 +359,8 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         for (TileEntity tileEntity : this.globalBlockEntities) {
             renderTE(tileEntity, pass, partialTicks, -1);
         }
+        TileEntityRendererDispatcher.instance.drawBatch(pass);
 
-        // TODO Damaged Block Renderer is still very broken
         this.preRenderDamagedBlocks();
         for (DestroyBlockProgress destroyProgress : damagedBlocks.values()) {
             BlockPos pos = destroyProgress.getPosition();
@@ -387,8 +387,6 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
             }
         }
         this.postRenderDamagedBlocks();
-
-        TileEntityRendererDispatcher.instance.drawBatch(pass);
     }
 
     @Override
