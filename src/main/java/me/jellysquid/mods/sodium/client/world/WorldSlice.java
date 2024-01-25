@@ -23,6 +23,7 @@ import net.minecraft.world.biome.BiomeColorHelper;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -440,26 +441,11 @@ public class WorldSlice implements SodiumBlockAccess {
         return this.origin;
     }
 
-    // Modern checks if the sky is darkened, which only happens in the nether. However, I think 1.7.10's hasNoSky is
-    // close enough and possibly a behavior change between versions. I also don't know why it's rotationally asymmetric
     public float getBrightness(EnumFacing direction, boolean shaded) {
         if (!shaded) {
             return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
         }
-        switch (direction) {
-            case DOWN:
-                return !world.provider.hasSkyLight() ? 0.9f : 0.5f;
-            case UP:
-                return !world.provider.hasSkyLight() ? 0.9f : 1.0f;
-            case NORTH:
-            case SOUTH:
-                return 0.8f;
-            case WEST:
-            case EAST:
-                return 0.6f;
-            default:
-                return 1.0f;
-        }
+        return LightUtil.diffuseLight(direction);
     }
 
     // [VanillaCopy] PalettedContainer#toIndex
