@@ -6,6 +6,7 @@ import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -28,6 +29,7 @@ import repack.joml.Matrix4f;
 
 import java.nio.FloatBuffer;
 import java.util.Map;
+import java.util.Set;
 
 @Mixin(RenderGlobal.class)
 public abstract class MixinWorldRenderer {
@@ -143,37 +145,18 @@ public abstract class MixinWorldRenderer {
     private void markBlocksForUpdate(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean important) {
         this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, important);
     }
-    /*@Overwrite
-    public void scheduleBlockRenders(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        this.renderer.scheduleRebuildForBlockArea(minX, minY, minZ, maxX, maxY, maxZ, false);
-    }*/
 
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    /*@Overwrite
-    public void scheduleBlockRenders(int x, int y, int z) {
-        this.renderer.scheduleRebuildForChunks(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1, false);
-    }*/
+    // The following two redirects force light updates to trigger chunk updates and not check vanilla's chunk renderer
+    // flags
+    @Redirect(method = "updateClouds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;hasNoFreeRenderBuilders()Z"))
+    private boolean alwaysHaveBuilders(ChunkRenderDispatcher instance) {
+        return false;
+    }
 
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    /*@Overwrite
-    private void scheduleSectionRender(BlockPos pos, boolean important) {
-        this.renderer.scheduleRebuildForBlockArea(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1, important);
-    }*/
-
-    /**
-     * @reason Redirect chunk updates to our renderer
-     * @author JellySquid
-     */
-    /*@Overwrite
-    private void scheduleChunkRender(int x, int y, int z, boolean important) {
-        this.renderer.scheduleRebuildForChunk(x, y, z, important);
-    }*/
+    @Redirect(method = "updateClouds", at = @At(value = "INVOKE", target = "Ljava/util/Set;isEmpty()Z", ordinal = 1))
+    private boolean alwaysHaveNoTasks(Set instance) {
+        return true;
+    }
 
     @Inject(method = "loadRenderers", at = @At("RETURN"))
     private void onReload(CallbackInfo ci) {
