@@ -9,7 +9,7 @@
     "updateUrl": "",
     "authorList": ["NanoLive", "embeddedt", "CaffeineMC"],
     "credits": "",
-    "logoFile": "",
+    "logoFile": "assets/sodium/logo.png",
     "screenshots": [],
     "dependencies": []
   }
