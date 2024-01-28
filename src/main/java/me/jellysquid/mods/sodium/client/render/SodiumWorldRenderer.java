@@ -469,8 +469,7 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
 
     public String getChunksDebugString() {
         // C: visible/total
-        // TODO: add dirty and queued counts
-        return String.format("C: %s/%s", this.chunkRenderManager.getVisibleChunkCount(), this.chunkRenderManager.getTotalSections());
+        return String.format("C: %s/%s Q: %s+%si ", this.chunkRenderManager.getVisibleChunkCount(), this.chunkRenderManager.getTotalSections(), this.chunkRenderManager.getRebuildQueueSize(), this.chunkRenderManager.getImportantRebuildQueueSize());
     }
 
     /**

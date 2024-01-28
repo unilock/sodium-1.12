@@ -574,6 +574,14 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
         return this.columns.size() * 16;
     }
 
+    public int getRebuildQueueSize() {
+        return this.rebuildQueue.size();
+    }
+
+    public int getImportantRebuildQueueSize() {
+        return this.importantRebuildQueue.size();
+    }
+
     private void scheduleRebuildOffThread(int x, int y, int z, boolean important) {
         Minecraft.getMinecraft().addScheduledTask(() -> this.scheduleRebuild(x, y, z, important));
     }
