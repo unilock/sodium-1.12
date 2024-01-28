@@ -3,7 +3,6 @@ package me.jellysquid.mods.sodium.client.render.chunk.shader;
 import me.jellysquid.mods.sodium.client.gl.shader.GlProgram;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.render.GameRendererContext;
-import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL20;
 
@@ -36,7 +35,7 @@ public class ChunkProgram extends GlProgram {
         this.fogShader = fogShaderFunction.apply(this);
     }
 
-    public void setup(MatrixStack matrixStack, float modelScale, float textureScale) {
+    public void setup(float modelScale, float textureScale) {
         GL20.glUniform1i(this.uBlockTex, 0);
         GL20.glUniform1i(this.uLightTex, 1);
 
@@ -45,6 +44,6 @@ public class ChunkProgram extends GlProgram {
 
         this.fogShader.setup();
 
-        GL20.glUniformMatrix4(this.uModelViewProjectionMatrix, false, GameRendererContext.getModelViewProjectionMatrix(matrixStack.peek()));
+        GL20.glUniformMatrix4(this.uModelViewProjectionMatrix, false, GameRendererContext.getModelViewProjectionMatrix());
     }
 }

@@ -5,7 +5,6 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildResult;
 import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderListIterator;
-import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,9 +32,9 @@ public interface ChunkRenderBackend<T extends ChunkGraphicsState> {
 
     void createShaders(RenderDevice device);
 
-    void begin(MatrixStack matrixStack);
+    void begin();
 
-    void end(MatrixStack matrixStack);
+    void end();
 
     /**
      * Deletes this render backend and any resources attached to it.

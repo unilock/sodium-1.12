@@ -11,7 +11,6 @@ import me.jellysquid.mods.sodium.client.model.vertex.type.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderBackend;
 import me.jellysquid.mods.sodium.client.render.chunk.format.ChunkMeshAttribute;
-import me.jellysquid.mods.sodium.client.util.math.MatrixStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.EnumMap;
@@ -61,14 +60,14 @@ public abstract class ChunkRenderShaderBackend<T extends ChunkGraphicsState>
     }
 
     @Override
-    public void begin(MatrixStack matrixStack) {
+    public void begin() {
         this.activeProgram = this.programs.get(FogHelper.getFogMode());
         this.activeProgram.bind();
-        this.activeProgram.setup(matrixStack, this.vertexType.getModelScale(), this.vertexType.getTextureScale());
+        this.activeProgram.setup(this.vertexType.getModelScale(), this.vertexType.getTextureScale());
     }
 
     @Override
-    public void end(MatrixStack matrixStack) {
+    public void end() {
         this.activeProgram.unbind();
         this.activeProgram = null;
     }
