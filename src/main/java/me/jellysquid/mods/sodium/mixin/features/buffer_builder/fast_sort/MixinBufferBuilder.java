@@ -23,9 +23,6 @@ public class MixinBufferBuilder {
     @Shadow
     private VertexFormat vertexFormat;
 
-    @Shadow
-    private int buildStart;
-
     /**
      * @reason Reduce allocations, use stack allocations, avoid unnecessary math and pointer bumping, inline comparators
      * @author JellySquid
@@ -38,7 +35,6 @@ public class MixinBufferBuilder {
         int vertexStride = this.vertexFormat.getSize();
         int quadStride = this.vertexFormat.getIntegerSize() * 4;
 
-        int quadStart = this.buildStart / 4;
         int quadCount = this.vertexCount / 4;
         int vertexSizeInteger = this.vertexFormat.getIntegerSize();
 
@@ -46,7 +42,7 @@ public class MixinBufferBuilder {
         int[] indicesArray = new int[quadCount];
 
         for (int quadIdx = 0; quadIdx < quadCount; ++quadIdx) {
-            distanceArray[quadIdx] = getDistanceSq(floatBuffer, cameraX, cameraY, cameraZ, vertexSizeInteger, quadStart + (quadIdx * vertexStride));
+            distanceArray[quadIdx] = getDistanceSq(floatBuffer, cameraX, cameraY, cameraZ, vertexSizeInteger, quadIdx * vertexStride);
             indicesArray[quadIdx] = quadIdx;
         }
 
@@ -60,24 +56,24 @@ public class MixinBufferBuilder {
             int m = indicesArray[l];
 
             if (m != l) {
-                sliceQuad(floatBuffer, m, quadStride, quadStart);
+                sliceQuad(floatBuffer, m, quadStride);
                 tmp.clear();
                 tmp.put(floatBuffer);
 
                 int n = m;
 
                 for (int o = indicesArray[m]; n != l; o = indicesArray[o]) {
-                    sliceQuad(floatBuffer, o, quadStride, quadStart);
+                    sliceQuad(floatBuffer, o, quadStride);
                     FloatBuffer floatBuffer3 = floatBuffer.slice();
 
-                    sliceQuad(floatBuffer, n, quadStride, quadStart);
+                    sliceQuad(floatBuffer, n, quadStride);
                     floatBuffer.put(floatBuffer3);
 
                     bits.set(n);
                     n = o;
                 }
 
-                sliceQuad(floatBuffer, l, quadStride, quadStart);
+                sliceQuad(floatBuffer, l, quadStride);
                 tmp.flip();
 
                 floatBuffer.put(tmp);
@@ -91,8 +87,8 @@ public class MixinBufferBuilder {
         mergeSort(indicesArray, 0, indicesArray.length, distanceArray, Arrays.copyOf(indicesArray, indicesArray.length));
     }
 
-    private static void sliceQuad(FloatBuffer floatBuffer, int quadIdx, int quadStride, int quadStart) {
-        int base = quadStart + (quadIdx * quadStride);
+    private static void sliceQuad(FloatBuffer floatBuffer, int quadIdx, int quadStride) {
+        int base = quadIdx * quadStride;
 
         floatBuffer.limit(base + quadStride);
         floatBuffer.position(base);

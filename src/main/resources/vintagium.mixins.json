@@ -24,7 +24,7 @@
    // "features.block.MixinBlockModelRenderer",
     "features.block.MixinWorldRenderer",
     "features.buffer_builder.fast_advance.MixinVertexFormat",
-    //"features.buffer_builder.fast_sort.MixinBufferBuilder",
+    "features.buffer_builder.fast_sort.MixinBufferBuilder",
     "features.chunk_rendering.AccessorActiveRenderInfo",
     "features.chunk_rendering.AccessorBlockFluidRenderer",
     "features.chunk_rendering.AccessorBlockRenderDispatcher",
