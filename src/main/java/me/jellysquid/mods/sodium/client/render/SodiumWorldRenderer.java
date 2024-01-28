@@ -198,24 +198,24 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
         }
 
         double x = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * ticks;
-        double y = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * ticks;
+        double y = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * ticks + (double) viewEntity.getEyeHeight();
         double z = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * ticks;
 
-        this.chunkRenderManager.setCameraPosition(x, y + (double) viewEntity.getEyeHeight(), z);
+        this.chunkRenderManager.setCameraPosition(x, y, z);
 
         float fogDistance = FogHelper.getFogCutoff();
 
-        boolean dirty = viewEntity.posX != this.lastCameraX || viewEntity.posY != this.lastCameraY ||
-                viewEntity.posZ != this.lastCameraZ || (double) viewEntity.rotationPitch != this.lastCameraPitch |
+        boolean dirty = x != this.lastCameraX || y != this.lastCameraY ||
+                z != this.lastCameraZ || (double) viewEntity.rotationPitch != this.lastCameraPitch |
                 (double) viewEntity.rotationYaw != this.lastCameraYaw;
 
         if (dirty) {
             this.chunkRenderManager.markDirty();
         }
 
-        this.lastCameraX = viewEntity.posX;
-        this.lastCameraY = viewEntity.posY;
-        this.lastCameraZ = viewEntity.posZ;
+        this.lastCameraX = x;
+        this.lastCameraY = y;
+        this.lastCameraZ = z;
         this.lastCameraPitch = viewEntity.rotationPitch;
         this.lastCameraYaw = viewEntity.rotationYaw;
         this.lastFogDistance = fogDistance;
