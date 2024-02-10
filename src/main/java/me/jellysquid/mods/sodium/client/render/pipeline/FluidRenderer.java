@@ -40,8 +40,10 @@ import repack.joml.Vector3d;
 import java.util.Objects;
 
 public class FluidRenderer {
-	
-	private static final float EPSILON = 0.001f;
+
+    private static final float EPSILON = 0.001f;
+
+    private static final IBlockColor FLUID_COLOR_PROVIDER = (state, world, pos, tintIndex) -> WorldUtil.getFluid(state).getColor();
 
     private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
 
@@ -78,7 +80,7 @@ public class FluidRenderer {
         if (blockState.getMaterial().isOpaque()) {
             return fluid == adjFluid || blockState.isSideSolid(world,pos,dir);
             // fluidlogged or next to water, occlude sides that are solid or the same liquid
-            }
+        }
         return fluid == adjFluid;
     }
 
@@ -310,7 +312,7 @@ public class FluidRenderer {
                 TextureAtlasSprite oSprite = sprites[2];
 
                 if (oSprite != null) {
-                	BlockPos adjPos = this.scratchPos.setPos(adjX, adjY, adjZ);
+                    BlockPos adjPos = this.scratchPos.setPos(adjX, adjY, adjZ);
                     IBlockState adjBlock = world.getBlockState(adjPos);
 
                     if (adjBlock.getBlockFaceShape(world, adjPos, dir.getOpposite()) == net.minecraft.block.state.BlockFaceShape.SOLID) {
@@ -334,7 +336,7 @@ public class FluidRenderer {
                 float br = dir.getAxis() == EnumFacing.Axis.Z ? 0.8F : 0.6F;
 
                 ModelQuadFacing facing = ModelQuadFacing.fromDirection(dir);
-                
+
                 this.calculateQuadColors(quad, world, pos, lighter, dir, br, hc);
                 this.flushQuad(buffers, quad, facing, false);
 
@@ -363,8 +365,18 @@ public class FluidRenderer {
         if (colorized) {
             IBlockState state = world.getBlockState(pos);
             IBlockColor colorProvider = ((BlockColorsExtended)this.vanillaBlockColors).getColorProvider(state);
+            boolean containsColoredQuad = false;
             if(colorProvider != null) {
                 biomeColors = this.biomeColorBlender.getColors(colorProvider, world, state, pos, quad);
+                for(int color : biomeColors) {
+                    if(color != 0xFFFFFF) {
+                        containsColoredQuad = true;
+                        break;
+                    }
+                }
+            }
+            if(!containsColoredQuad) {
+                biomeColors = this.biomeColorBlender.getColors(FLUID_COLOR_PROVIDER, world, state, pos, quad);
             }
         }
 
