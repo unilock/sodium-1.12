@@ -93,10 +93,11 @@ public class WorldUtil {
      * value of zero
      */
     public static int getEffectiveFlowDecay(IBlockAccess world, BlockPos pos, IBlockState thiz) {
-        if (world.getBlockState(pos).getMaterial() != thiz.getMaterial()) {
+        IBlockState state = world.getBlockState(pos);
+        if (state.getMaterial() != thiz.getMaterial()) {
             return -1;
         } else {
-            int decay = thiz.getValue(BlockLiquid.LEVEL);
+            int decay = state.getValue(BlockLiquid.LEVEL);
             return decay >= 8 ? 0 : decay;
         }
     }
