@@ -2,7 +2,6 @@ package me.jellysquid.mods.sodium.client.world;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.jellysquid.mods.sodium.client.util.math.ChunkSectionPos;
-import me.jellysquid.mods.sodium.client.world.biome.BiomeCache;
 import me.jellysquid.mods.sodium.client.world.biome.BiomeColorCache;
 import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
 import me.jellysquid.mods.sodium.client.world.cloned.ClonedChunkSection;
@@ -77,7 +76,7 @@ public class WorldSlice implements SodiumBlockAccess {
     private ClonedChunkSection[] sections;
 
     // Biome caches for each chunk section
-    private BiomeCache[] biomeCaches;
+    private Biome[][] biomeCaches;
 
     // The biome blend caches for each color resolver type
     // This map is always re-initialized, but the caches themselves are taken from an object pool
@@ -147,7 +146,7 @@ public class WorldSlice implements SodiumBlockAccess {
 
         this.sections = new ClonedChunkSection[SECTION_TABLE_ARRAY_SIZE];
         this.blockStatesArrays = new IBlockState[SECTION_TABLE_ARRAY_SIZE][];
-        this.biomeCaches = new BiomeCache[SECTION_TABLE_ARRAY_SIZE];
+        this.biomeCaches = new Biome[SECTION_TABLE_ARRAY_SIZE][16 * 16];
 
         for (int x = 0; x < SECTION_LENGTH; x++) {
             for (int y = 0; y < SECTION_LENGTH; y++) {
@@ -156,7 +155,6 @@ public class WorldSlice implements SodiumBlockAccess {
 
                     this.blockStatesArrays[i] = new IBlockState[SECTION_BLOCK_COUNT];
                     Arrays.fill(this.blockStatesArrays[i], Blocks.AIR.getDefaultState());
-                    this.biomeCaches[i] = new BiomeCache(this.world);
                 }
             }
         }
@@ -181,9 +179,11 @@ public class WorldSlice implements SodiumBlockAccess {
                 for (int z = 0; z < SECTION_LENGTH; z++) {
                     int idx = getLocalSectionIndex(x, y, z);
 
-                    this.biomeCaches[idx].reset();
+                    ClonedChunkSection section = this.sections[idx];
 
-                    this.unpackBlockData(this.blockStatesArrays[idx], this.sections[idx], context.getVolume());
+                    this.biomeCaches[idx] = section.getBiomeData();
+
+                    this.unpackBlockData(this.blockStatesArrays[idx], section, context.getVolume());
                 }
             }
         }
@@ -433,8 +433,7 @@ public class WorldSlice implements SodiumBlockAccess {
             return Biomes.PLAINS;
         }
 
-        return this.biomeCaches[idx]
-                .getBiome(x, relY >> 4, z);
+        return this.biomeCaches[idx][((z & 15) << 4) | (x & 15)];
     }
 
     public ChunkSectionPos getOrigin() {

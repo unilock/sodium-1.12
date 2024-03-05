@@ -91,6 +91,10 @@ public class ClonedChunkSection {
         return this.biomeData[x | z << 4];
     }
 
+    public Biome[] getBiomeData() {
+        return this.biomeData;
+    }
+
     public TileEntity getBlockEntity(int x, int y, int z) {
         return this.blockEntities.get(packLocal(x, y, z));
     }
