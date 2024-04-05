@@ -35,6 +35,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -216,19 +217,37 @@ public class MultidrawChunkRenderBackend extends ChunkRenderShaderBackend<Multid
             commandList.uploadData(this.commandBuffer, this.commandClientBufferBuilder.getBuffer());
         }
 
-        long pointer = this.commandBuffer == null ? this.commandClientBufferBuilder.getBufferAddress() : 0L;
+        long pointer = 0L;
+        ByteBuffer pointerBuffer;
+        int originalPointerBufferPos = 0;
+        if (this.commandBuffer != null) {
+            pointerBuffer = null;
+        } else {
+            pointerBuffer = this.commandClientBufferBuilder.getBuffer();
+            originalPointerBufferPos = pointerBuffer.position();
+        }
 
         for (ChunkRegion<?> region : this.pendingBatches) {
             ChunkDrawCallBatcher batch = region.getDrawBatcher();
 
             if (!batch.isEmpty()) {
 	            try (DrawCommandList drawCommandList = commandList.beginTessellating(region.getTessellation())) {
-	                drawCommandList.multiDrawArraysIndirect(pointer, batch.getCount(), 0 /* tightly packed */);
+                    if(pointerBuffer == null) {
+                        drawCommandList.multiDrawArraysIndirect(pointer, batch.getCount(), 0 /* tightly packed */);
+                    } else {
+                        drawCommandList.multiDrawArraysIndirect(pointerBuffer, batch.getCount(), 0 /* tightly packed */);
+                    }
 	            }
             }
 
-            pointer += batch.getArrayLength();
+            if(pointerBuffer == null) {
+                pointer += batch.getArrayLength();
+            } else {
+                pointerBuffer.position(pointerBuffer.position() + batch.getArrayLength());
+            }
         }
+        if (pointerBuffer != null)
+            pointerBuffer.position(originalPointerBufferPos);
 
         this.pendingBatches.clear();
     }
