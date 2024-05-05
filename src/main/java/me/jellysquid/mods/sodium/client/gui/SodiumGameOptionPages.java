@@ -206,7 +206,7 @@ public class SodiumGameOptionPages {
                         .build())
                 .build());
 
-                
+
         groups.add(OptionGroup.createBuilder()
                 .add(OptionImpl.createBuilder(int.class, vanillaOpts)
                         .setName(new TextComponentTranslation("options.mipmapLevels"))
