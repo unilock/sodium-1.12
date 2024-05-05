@@ -15,6 +15,8 @@ import me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw.Multidra
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.GuiIngameForge;
+
 import org.lwjgl.opengl.Display;
 
 import java.util.ArrayList;
@@ -199,12 +201,12 @@ public class SodiumGameOptionPages {
                         .setName(new TextComponentTranslation("sodium.options.vignette.name"))
                         .setTooltip(new TextComponentTranslation("sodium.options.vignette.tooltip"))
                         .setControl(TickBoxControl::new)
-                        .setBinding((opts, value) -> opts.quality.enableVignette = value, opts -> opts.quality.enableVignette)
+                        .setBinding((opts, value) -> GuiIngameForge.renderVignette = value, opts -> GuiIngameForge.renderVignette)
                         .setImpact(OptionImpact.LOW)
                         .build())
                 .build());
 
-
+                
         groups.add(OptionGroup.createBuilder()
                 .add(OptionImpl.createBuilder(int.class, vanillaOpts)
                         .setName(new TextComponentTranslation("options.mipmapLevels"))
