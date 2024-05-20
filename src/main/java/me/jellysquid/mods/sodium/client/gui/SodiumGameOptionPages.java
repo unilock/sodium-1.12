@@ -201,7 +201,7 @@ public class SodiumGameOptionPages {
                         .setName(new TextComponentTranslation("sodium.options.vignette.name"))
                         .setTooltip(new TextComponentTranslation("sodium.options.vignette.tooltip"))
                         .setControl(TickBoxControl::new)
-                        .setBinding((opts, value) -> GuiIngameForge.renderVignette = value, opts -> GuiIngameForge.renderVignette)
+                        .setBinding((opts, value) -> opts.quality.enableVignette = value, opts -> opts.quality.enableVignette)
                         .setImpact(OptionImpact.LOW)
                         .build())
                 .build());

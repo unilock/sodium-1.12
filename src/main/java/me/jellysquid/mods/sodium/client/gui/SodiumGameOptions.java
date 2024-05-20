@@ -53,7 +53,7 @@ public class SodiumGameOptions {
         public int biomeBlendRadius = 2;
         public float entityDistanceScaling = 1.0F;
 
-        // public boolean enableVignette = true; //replaced by `GuiIngameForge.renderVignette`
+        public boolean enableVignette = true;
         public boolean enableClouds = true;
 
         public LightingQuality smoothLighting = LightingQuality.HIGH;
