@@ -15,6 +15,8 @@ import me.jellysquid.mods.sodium.client.render.chunk.backends.multidraw.Multidra
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.GuiIngameForge;
+
 import org.lwjgl.opengl.Display;
 
 import java.util.ArrayList;
